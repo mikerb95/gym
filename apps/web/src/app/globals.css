@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --chalk: #f2f4f3;
+  --surface: #ffffff;
+  --surface-sunken: #e6eae8;
+  --ink: #1e2428;
+  --ink-muted: #5b666c;
+  --line: #d3d9d6;
+  --cobalt: #2b55c6;
+  --cobalt-ink: #ffffff;
+  --cobalt-tint: #e3e9f8;
+  --amber: #c77b12;
+  --amber-tint: #f8ecd9;
+  --ok: #2f7d4f;
+
+  /* Colores de disco IWF: codifican peso, solo se usan para cargas. */
+  --plate-25: #d6312b;
+  --plate-20: #2c5fb8;
+  --plate-15: #e3b521;
+  --plate-10: #2f8a4c;
+  --plate-5: #f5f5f2;
+  --plate-small: #8a9196;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chalk: #181c20;
+    --surface: #20262b;
+    --surface-sunken: #14181b;
+    --ink: #e9edeb;
+    --ink-muted: #9aa5ab;
+    --line: #333b41;
+    --cobalt: #6f93f2;
+    --cobalt-ink: #0f1830;
+    --cobalt-tint: #233150;
+    --amber: #e8a24a;
+    --amber-tint: #3a2c17;
+    --ok: #6cc28f;
+    --plate-5: #dfe2e0;
+  }
+}
+
+@theme inline {
+  --color-chalk: var(--chalk);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-cobalt: var(--cobalt);
+  --color-cobalt-ink: var(--cobalt-ink);
+  --color-cobalt-tint: var(--cobalt-tint);
+  --color-amber: var(--amber);
+  --color-amber-tint: var(--amber-tint);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-archivo);
+}
+
+html {
+  background: var(--chalk);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Cifras de entrenamiento: anchas y pesadas, como el estampado de un disco. */
+.figure {
+  font-stretch: 125%;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.heading {
+  font-stretch: 112%;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+:focus-visible {
+  outline: 3px solid var(--cobalt);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  unrs-resolver: true
+  sharp: true
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - "@electric-sql/pglite@0.5.13"
+  - lucide-react@1.63.0
+  - "@capacitor/android@8.6.0"
+  - "@capacitor/cli@8.6.0"
+  - "@capacitor/core@8.6.0"
