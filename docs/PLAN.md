@@ -30,7 +30,14 @@ Esta sección manda sobre cualquier parte del documento que la contradiga.
 - El reconocimiento se organiza por **función** (prensa 45°, jalón al pecho, etc.), independiente del color, la marca o la tapicería, y luego por marca y modelo.
 - Los usuarios autorizan que sus fotos confirmadas de **máquinas** se sumen como referencia. Las de comida y las corporales no.
 - QR/NFC: probablemente algunos gyms lo acepten, así que queda como capa adicional.
-- La investigación técnica está en `docs/research/reconocimiento-maquinas.md`.
+- La investigación técnica está en `docs/research/reconocimiento-maquinas.md` y reemplaza la sección 4.4 (que suponía un inventario por gym). Conclusiones:
+  - Se registra el **ejercicio**, no la máquina. Si todas las candidatas permiten el ejercicio del plan, la app no pregunta.
+  - Modelo: DINOv2 o DINOv3 tamaño S afinado (ArcFace con negativos difíciles) + kNN contra una galería global de 172 clases funcionales (~2 MB), en el teléfono con ONNX Runtime Web (WebGPU con respaldo WASM). Además, cada gym tiene una galería local que se forma sola con las fotos confirmadas por los usuarios. MobileCLIP queda descartado porque su licencia es solo para investigación.
+  - Bandas de confianza: se autoconfirma con p ≥ 0,92 y margen ≥ 0,30. Entre 0,55 y 0,92 decide un VLM verificador barato (~USD 0,0003 por consulta). Cuando la duda cae en un grupo de confusión conocido, se pide una segunda foto dirigida.
+  - Metas honestas: lo autoconfirmado acierta en ≥ 99,5 %. Top-1 de 88 a 93 % y top-3 de 97 a 99 % al lanzar, y más de 99 % en las máquinas ya confirmadas en ese gym. Solo QR/NFC llega al 100 %.
+  - Las imágenes de catálogos de fabricantes no se pueden usar sin permiso (términos de uso y Ley 23 de 1982). El dataset sale de una campaña propia de fotos: 30 a 40 gyms, unas 55 horas, de 100 a 300 fotos por clase. Antes de escalar, un piloto de 2 a 3 semanas.
+  - Costo: USD 20 a 45 al mes con 2.000 usuarios activos.
+- Las secciones 4.4, 6 y 7 que mencionan Expo, React Native o un inventario por gym quedan reemplazadas por esta sección.
 
 **Nutrición**
 - Planes completos: menús, recetas, cantidades y lista de mercado con costos estimados en COP. Suplementos, ayuno intermitente y modo sin números.
