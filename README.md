@@ -1,4 +1,4 @@
-# Forja (nombre provisional)
+# Steadyrep
 
 Plataforma de entrenamiento, nutrición y seguimiento con IA para atletas y entrenadores en Colombia.
 El plan completo está en `docs/PLAN.md` y la investigación de reconocimiento de máquinas en `docs/research/`.

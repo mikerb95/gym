@@ -1,4 +1,4 @@
-package co.forja.app;
+package app.steadyrep;
 
 import com.getcapacitor.BridgeActivity;
 
