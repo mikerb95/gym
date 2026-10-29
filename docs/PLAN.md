@@ -63,6 +63,7 @@ Esta sección manda sobre cualquier parte del documento que la contradiga.
 - **App Android nativa desde ya**: la misma PWA empaquetada con **Capacitor**, más plugins nativos para Health Connect, cámara y notificaciones. Un solo código. iOS después.
 - Pagos con proveedores locales: **Wompi** o **Mercado Pago** (PSE, Nequi, tarjetas). Stripe no opera para comercios colombianos. Facturación DIAN por API de un proveedor autorizado (Alegra, Siigo o similar).
 - IA dentro del presupuesto: el reconocimiento de máquinas corre en el dispositivo. Haiku 5.5 se usa por defecto y Sonnet 5.5 solo cuando hace falta visión de comida o análisis profundo, con caché y topes por usuario. Infraestructura base: Vercel Pro (USD 20) y Supabase Pro (USD 25).
+- Región: Supabase en `us-east-1` (Virginia) y funciones de Vercel en `iad1` (Washington), en el mismo sitio para que cada consulta no cruce el continente. Los cables submarinos de Colombia (ARCOS, Maya-1, AMX-1, CFX-1) salen del Caribe hacia Florida, así que el tráfico a São Paulo suele dar la vuelta por Miami. Medido desde Colombia el 29 de octubre de 2026 (conexión TCP): us-east-1 90 ms, us-east-2 102 ms, sa-east-1 134 ms.
 - El plan de privacidad, los términos y los consentimientos se redactan conforme a la Ley 1581 y al Decreto 1377.
 
 ---
