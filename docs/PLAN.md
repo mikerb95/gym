@@ -6,6 +6,60 @@ Este documento define la visión, los módulos, la experiencia de uso, la arquit
 
 ---
 
+## Decisiones confirmadas (28 de octubre de 2026)
+
+Esta sección manda sobre cualquier parte del documento que la contradiga.
+
+**Negocio y alcance**
+- Mercado: **Colombia**. Pesos colombianos, Ley 1581 de 2012 y Decreto 1377 de 2013 (los datos de salud son sensibles y requieren autorización expresa), tabla de composición de alimentos del ICBF y comida colombiana curada.
+- Monetización mixta: suscripción del atleta, plan del entrenador, licencia de gimnasio y comisión sobre lo que los entrenadores cobran a sus afiliados.
+- El MVP sirve a la vez al atleta con IA y al entrenador. Es **una sola app con cambio de modo**, con marca blanca (logo y colores del entrenador o gym).
+- Sin componente social. Tono cercano, tuteo. Tema según el sistema. Aún no hay marca: hay que proponer nombre e identidad.
+- Plazo: **menos de un mes** para tener una primera versión con usuarios reales, con todo el alcance. Presupuesto: **menos de USD 100 al mes** en infraestructura e IA.
+
+**Poblaciones:** se atienden menores, embarazo y posparto, adultos mayores, y lesiones y rehabilitación. No hay un profesional que valide: los protocolos se basan en guías publicadas (ACSM, OMS, PAR-Q+), con reglas duras en `packages/core`. Los menores requieren la autorización de su representante legal.
+
+**Entrenamiento**
+- Disciplinas: musculación y fitness, fuerza (powerlifting y halterofilia), funcional, crossfit y calistenia, y cardio y running.
+- Lugares: gimnasio comercial, casa, aire libre y parques.
+- Ejercicios ilustrados con **animaciones 3D** (modelo anatómico con los músculos activados).
+- La IA **propone** los ajustes y el atleta los acepta o mantiene el plan original. Si el atleta tiene entrenador, **el entrenador aprueba**, y mientras tanto el atleta sigue el plan original.
+
+**Reconocimiento de máquinas**
+- Nadie registra el inventario de cada gym. Hay que reconocer todas las máquinas a partir de un catálogo global de imágenes de referencia, que se usan solo para hacer el match y no se muestran en la app.
+- El reconocimiento se organiza por **función** (prensa 45°, jalón al pecho, etc.), independiente del color, la marca o la tapicería, y luego por marca y modelo.
+- Los usuarios autorizan que sus fotos confirmadas de **máquinas** se sumen como referencia. Las de comida y las corporales no.
+- QR/NFC: probablemente algunos gyms lo acepten, así que queda como capa adicional.
+- La investigación técnica está en `docs/research/reconocimiento-maquinas.md`.
+
+**Nutrición**
+- Planes completos: menús, recetas, cantidades y lista de mercado con costos estimados en COP. Suplementos, ayuno intermitente y modo sin números.
+- Micronutrientes completos (30 o más).
+- Reconocimiento de comida casera colombiana, productos empacados, restaurantes y cadenas, y comida internacional.
+
+**Cuerpo y bienestar**
+- Lo único obligatorio en el onboarding es el peso y la estatura. Todo lo demás es opcional y guiado.
+- Integraciones: InBody y bioimpedancia (por foto del reporte), básculas inteligentes, relojes y wearables, y plicómetro.
+- Seguimiento emocional con escalas rápidas, cuestionarios validados y ciclo menstrual.
+- Ante una bandera roja, la app detiene la sesión y orienta con líneas de ayuda en Colombia, avisa al entrenador y avisa al contacto de emergencia.
+
+**Ubicación (todo opcional):** se usa para registrar el lugar, mostrar gyms cercanos y estimar la afluencia. El atleta decide si el entrenador ve dónde entrenó.
+
+**Entrenador**
+- Herramientas: cobro a afiliados (PSE, Nequi, tarjeta), facturación electrónica DIAN, agenda de sesiones y clases grupales.
+- Comunicación: chat 1 a 1, grupos y anuncios, y WhatsApp para recordatorios.
+- Informes: PDF mensual con su marca y resumen semanal generado por la IA.
+- Si el atleta deja al entrenador, este pierde todo acceso a sus datos.
+
+**Plataformas y stack (reemplaza la sección 6.1 donde choque)**
+- **PWA** (Next.js) para móvil y escritorio, para atletas y entrenadores. Incluye uso sin conexión con service worker e IndexedDB, cámara con reconocimiento en el navegador (ONNX Runtime Web con WebGPU o transformers.js, y MediaPipe Tasks), push web e instalación.
+- **App Android nativa desde ya**: la misma PWA empaquetada con **Capacitor**, más plugins nativos para Health Connect, cámara y notificaciones. Un solo código. iOS después.
+- Pagos con proveedores locales: **Wompi** o **Mercado Pago** (PSE, Nequi, tarjetas). Stripe no opera para comercios colombianos. Facturación DIAN por API de un proveedor autorizado (Alegra, Siigo o similar).
+- IA dentro del presupuesto: el reconocimiento de máquinas corre en el dispositivo. Haiku 5.5 se usa por defecto y Sonnet 5.5 solo cuando hace falta visión de comida o análisis profundo, con caché y topes por usuario. Infraestructura base: Vercel Pro (USD 20) y Supabase Pro (USD 25).
+- El plan de privacidad, los términos y los consentimientos se redactan conforme a la Ley 1581 y al Decreto 1377.
+
+---
+
 ## 0. Tres verdades incómodas que el plan asume desde el inicio
 
 1. **"100% confiable" no existe en visión por computadora.** Ningún modelo reconoce máquinas con certeza absoluta (hay cientos de marcas, modelos casi idénticos, fotos con mala luz, máquinas con pines y poleas iguales). Lo que sí se puede lograr es una **experiencia que nunca registra algo equivocado**: el sistema solo autoconfirma cuando la confianza es muy alta, en el resto de casos ofrece 3 opciones visuales y, como capa determinista, admite **códigos QR/NFC pegados en la máquina** (eso sí es 100% fiable). El diseño de la sección 4.4 se basa en esto.
