@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonQuiet, PageHeader, Section } from "@/components/ui";
+import { requireAthlete } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "Perfil" };
 
@@ -13,10 +14,11 @@ const SHARING = [
   { label: "Ubicación", detail: "Dónde entrenaste" },
 ];
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const viewer = await requireAthlete();
   return (
     <>
-      <PageHeader title="Perfil" />
+      <PageHeader title={viewer.profile.fullName} lead={viewer.email ?? undefined} />
       <Section title="Qué ve tu entrenador">
         <p className="mb-4 max-w-[60ch] leading-relaxed text-muted">
           Tú decides cada categoría y puedes cambiarla cuando quieras. Si terminas con tu entrenador, deja de ver todo.
@@ -37,6 +39,24 @@ export default function ProfilePage() {
         <Link href="/entrenador" className={buttonQuiet}>
           Pasar a modo entrenador
         </Link>
+      </Section>
+      <Section title="Tu cuenta">
+        <p className="mb-4 max-w-[60ch] leading-relaxed text-muted">
+          Lee la{" "}
+          <Link href="/privacidad" className="font-medium text-ink underline underline-offset-2">
+            política de tratamiento de datos
+          </Link>{" "}
+          y los{" "}
+          <Link href="/terminos" className="font-medium text-ink underline underline-offset-2">
+            términos
+          </Link>
+          .
+        </p>
+        <form action="/auth/salir" method="post">
+          <button type="submit" className={buttonQuiet}>
+            Cerrar sesión
+          </button>
+        </form>
       </Section>
     </>
   );

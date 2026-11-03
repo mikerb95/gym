@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  transpilePackages: ["@gym/core"],
+  transpilePackages: ["@gym/core", "@gym/db"],
   experimental: {
     useOffline: true,
   },

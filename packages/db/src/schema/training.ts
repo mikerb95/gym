@@ -22,7 +22,7 @@ export const exercises = pgTable(
     slug: text().notNull().unique(),
     name: text().notNull(),
     aliases: text().array().default([]).notNull(),
-    movementPattern: text().notNull(), // squat | hinge | push_h | push_v | pull_h | pull_v | lunge | carry | core | cardio
+    movementPattern: text().notNull(), // squat | hinge | push_h | push_v | pull_h | pull_v | lunge | carry | core | cardio | isolation
     primaryMuscles: text().array().notNull(),
     secondaryMuscles: text().array().default([]).notNull(),
     equipment: text().array().default([]).notNull(),

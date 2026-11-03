@@ -20,7 +20,8 @@ pnpm dev                                   # PWA en http://localhost:3000
 pnpm test                                  # pruebas de core y de seguridad por fila
 pnpm typecheck && pnpm lint
 pnpm --filter @gym/db db:check             # aplica las migraciones en un Postgres en memoria
-pnpm --filter @gym/db db:migrate           # aplica las migraciones en Supabase (requiere DATABASE_URL)
+pnpm --filter @gym/db db:migrate           # aplica las migraciones en Supabase (lee .env de la raíz)
+pnpm --filter @gym/db db:seed              # carga o actualiza el catálogo de ejercicios
 pnpm --filter @gym/android sync            # sincroniza la app Android
 ```
 
