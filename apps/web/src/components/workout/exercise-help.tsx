@@ -9,6 +9,8 @@ import { subscribe, workoutStore } from "@/lib/workout-store";
 type Panel = "guide" | "setup" | "busy";
 
 const NOTE_MAX = 200;
+// Sin nada que ajustar: "Mi ajuste" solo aparece con equipo que se regula.
+const NOT_ADJUSTABLE = new Set(["barbell", "dumbbell", "kettlebell", "bodyweight", "pull_up_bar", "dip_bars", "box", "ab_wheel", "jump_rope"]);
 
 /** Lo que se necesita frente a la máquina: cómo usarla, cómo la dejé y qué hacer si está ocupada. */
 export function ExerciseHelp({
@@ -45,7 +47,7 @@ export function ExerciseHelp({
 
   const tabs: { id: Panel; label: string; icon: typeof BookOpen; show: boolean }[] = [
     { id: "guide", label: "Cómo usarla", icon: BookOpen, show: hasGuide },
-    { id: "setup", label: "Mi ajuste", icon: SlidersHorizontal, show: true },
+    { id: "setup", label: "Mi ajuste", icon: SlidersHorizontal, show: exercise.equipment.some((q) => !NOT_ADJUSTABLE.has(q)) },
     { id: "busy", label: "Está ocupada", icon: Repeat, show: canSwap },
   ];
 

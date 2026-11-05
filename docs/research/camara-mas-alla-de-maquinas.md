@@ -14,6 +14,18 @@ Analizar a la persona con cámara es posible y llamativo, pero la evidencia es m
 - **Encuesta comercial:** dato de una empresa interesada; sirve como indicio.
 - **Hipótesis:** idea mía, sin evidencia todavía.
 
+## Estado (5 de noviembre de 2026)
+
+**Construido:** tarjeta de la máquina (`exercise-help.tsx`, con guías en `packages/db/src/seed/machine-guides.ts`), propuesta de peso en sesión libre con `proposeLoad`, "Mi ajuste" y "Está ocupada" (`suggestAlternatives` en `@gym/core`).
+
+**Límites de lo construido:**
+- Las guías las redactó el equipo con indicaciones generales. Falta que las revise un entrenador certificado antes de abrir a usuarios reales.
+- "Mi ajuste" se guarda solo en el teléfono y por ejercicio, no por gym. Si la persona entrena en dos gyms, comparten la misma nota.
+- "Está ocupada" no sabe qué máquinas hay en cada gym, porque "Mi gym" no existe todavía.
+- Las unidades de la pila se resuelven por ahora con un aviso, sin leerla por foto.
+
+**Pendiente:** "Mi gym" (función 6) y las etapas sobre la persona.
+
 ## Qué problema hay que resolver
 
 No saber usar los equipos aparece entre las barreras frecuentes para entrar al gym: 43 % en una encuesta de 1.000 personas en EE. UU. y 26 % en una de 2.000 en Reino Unido. Una encuesta a personas que no van al gym encontró que 48 % se avergonzaría de pedir ayuda y 64 % no sabría cuánto peso usar. Son encuestas comerciales con preguntas distintas, y ninguna es de Colombia. Aun así, apuntan a lo mismo: la duda no es solo "qué máquina es", sino "cómo la uso sin hacer el ridículo".

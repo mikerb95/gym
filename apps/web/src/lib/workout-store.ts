@@ -85,8 +85,10 @@ export const workoutStore = {
   /** Mi ajuste por ejercicio: altura del asiento, número de placa. Vive solo en este teléfono. */
   getMachineNotes: () => read<Record<string, string>>(MACHINE_NOTES),
   setMachineNote(exerciseId: string, note: string) {
-    const { [exerciseId]: _previous, ...others } = workoutStore.getMachineNotes() ?? {};
-    write(MACHINE_NOTES, note ? { ...others, [exerciseId]: note } : others);
+    const notes = { ...workoutStore.getMachineNotes() };
+    if (note) notes[exerciseId] = note;
+    else delete notes[exerciseId];
+    write(MACHINE_NOTES, notes);
   },
   getRestSeconds: () => read<number>(REST) ?? 90,
   setRestSeconds: (s: number) => write(REST, s),

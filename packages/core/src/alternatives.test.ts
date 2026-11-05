@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { EXERCISES } from "../../db/src/seed/exercises";
 import { suggestAlternatives } from "./alternatives";
 
-const catalog = EXERCISES.map((e) => ({ id: e.slug, movementPattern: e.movementPattern, primaryMuscles: e.primaryMuscles }));
+const catalog = EXERCISES.map((e) => ({ id: e.slug, movementPattern: e.movementPattern, primaryMuscles: e.primaryMuscles, equipment: e.equipment }));
 const find = (slug: string) => catalog.find((e) => e.id === slug)!;
 
 describe("alternativas cuando la máquina está ocupada", () => {
@@ -20,6 +20,12 @@ describe("alternativas cuando la máquina está ocupada", () => {
     expect(first.movementPattern).toBe("pull_v");
   });
 
+  it("en una máquina prefiere otra máquina antes que peso libre", () => {
+    const [first] = suggestAlternatives(find("extension-cuadriceps"), catalog);
+    expect(first.equipment).toContain("machine");
+    expect(first.primaryMuscles).toContain("quadriceps");
+  });
+
   it("no propone lo que ya está en la sesión", () => {
     const first = suggestAlternatives(find("jalon-pecho"), catalog)[0];
     const next = suggestAlternatives(find("jalon-pecho"), catalog, { exclude: [first.id] });
@@ -28,7 +34,12 @@ describe("alternativas cuando la máquina está ocupada", () => {
 
   it("entre opciones iguales prefiere lo que la persona ya hizo", () => {
     const options = suggestAlternatives(find("jalon-pecho"), catalog, { limit: 20 });
-    const tied = options.filter((o) => o.movementPattern === "pull_v" && o.primaryMuscles.join() === options[0].primaryMuscles.join());
+    const tied = options.filter(
+      (o) =>
+        o.movementPattern === options[0].movementPattern &&
+        o.primaryMuscles.join() === options[0].primaryMuscles.join() &&
+        o.equipment.join() === options[0].equipment.join(),
+    );
     const known = tied.at(-1)!;
     expect(suggestAlternatives(find("jalon-pecho"), catalog, { known: new Set([known.id]) })[0].id).toBe(known.id);
   });

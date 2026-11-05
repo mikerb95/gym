@@ -4,12 +4,14 @@ export type AlternativeExercise = {
   id: string;
   movementPattern: string;
   primaryMuscles: readonly string[];
+  equipment: readonly string[];
 };
 
 /**
- * Exige el músculo principal, y prefiere el mismo patrón de movimiento, los demás
- * músculos en común y lo que la persona ya conoce. No propone lo que ya está en la
- * sesión. Con el catálogo solo no se sabe qué hay en cada gym: la persona elige.
+ * Exige el músculo principal, y prefiere el mismo tipo de equipo (quien usa una
+ * máquina no busca una sentadilla con barra), el mismo patrón de movimiento, los
+ * demás músculos en común y lo que la persona ya conoce. No propone lo que ya está
+ * en la sesión. Con el catálogo solo no se sabe qué hay en cada gym: la persona elige.
  */
 export function suggestAlternatives<T extends AlternativeExercise>(
   exercise: AlternativeExercise,
@@ -20,7 +22,8 @@ export function suggestAlternatives<T extends AlternativeExercise>(
   if (!main) return [];
   const excluded = new Set([exercise.id, ...(options.exclude ?? [])]);
   const score = (e: T) =>
-    (e.movementPattern === exercise.movementPattern ? 4 : 0) +
+    (e.equipment.some((q) => exercise.equipment.includes(q)) ? 4 : 0) +
+    (e.movementPattern === exercise.movementPattern ? 3 : 0) +
     e.primaryMuscles.filter((m) => exercise.primaryMuscles.includes(m)).length * 2 +
     (options.known?.has(e.id) ? 1 : 0);
 
