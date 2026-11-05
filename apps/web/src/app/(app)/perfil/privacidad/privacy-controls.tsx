@@ -106,6 +106,8 @@ export function DataActions() {
         return;
       }
       await clearDeviceData();
+      // Recarga completa a propósito: descarta de la memoria todo lo de la cuenta borrada.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign("/ingresar?cuenta=eliminada");
     });
   }

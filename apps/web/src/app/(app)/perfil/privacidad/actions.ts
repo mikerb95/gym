@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { deleteHealthData, deleteUserAccount } from "@gym/db";
@@ -91,7 +91,7 @@ export async function acceptPolicy(): Promise<ActionResult> {
     const rows = await tx
       .select({ purpose: consents.purpose, granted: consents.granted, revokedAt: consents.revokedAt })
       .from(consents)
-      .where(and(eq(consents.userId, viewer.id), inArray(consents.purpose, ["sensitive_health"])))
+      .where(and(eq(consents.userId, viewer.id), eq(consents.purpose, "sensitive_health")))
       .orderBy(desc(consents.grantedAt))
       .limit(1);
     const renewHealth = rows[0]?.granted && !rows[0].revokedAt;

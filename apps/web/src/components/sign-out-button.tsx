@@ -7,7 +7,12 @@ import { subscribe, workoutStore } from "@/lib/workout-store";
 
 /** Cierra la sesión y limpia el dispositivo. Avisa antes si hay entrenamientos sin subir. */
 export function SignOutButton() {
-  const queued = useSyncExternalStore(subscribe, () => workoutStore.getOutbox().length, () => 0);
+  // Lo que se perdería: entrenamientos en cola y la sesión abierta, si la hay.
+  const queued = useSyncExternalStore(
+    subscribe,
+    () => workoutStore.getOutbox().length + (workoutStore.getActive() ? 1 : 0),
+    () => 0,
+  );
   const [warning, setWarning] = useState(false);
   const form = useRef<HTMLFormElement>(null);
 

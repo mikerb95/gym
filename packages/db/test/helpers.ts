@@ -12,8 +12,8 @@ export async function migratedDb() {
     CREATE TABLE auth.users (id uuid PRIMARY KEY);
     CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE
       AS $$ SELECT coalesce(
-        nullif(current_setting('request.jwt.claim.sub', true), ''),
-        nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'
+        nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub',
+        nullif(current_setting('request.jwt.claim.sub', true), '')
       )::uuid $$;
     GRANT USAGE ON SCHEMA auth TO authenticated;
   `);
