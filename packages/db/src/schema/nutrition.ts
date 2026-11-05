@@ -91,7 +91,7 @@ export const nutritionTargets = pgTable(
     fiberG: integer(),
     /** Ventana de ayuno intermitente, p. ej. { start: "12:00", end: "20:00" }. */
     eatingWindow: jsonb(),
-    setBy: uuid().references(() => profiles.id),
+    setBy: uuid().references(() => profiles.id, { onDelete: "set null" }),
     ...timestamps,
   },
   (t) => [index().on(t.userId, t.effectiveFrom)],
@@ -102,7 +102,7 @@ export const mealPlans = pgTable("meal_plans", {
   userId: uuid()
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" }),
-  authorId: uuid().references(() => profiles.id),
+  authorId: uuid().references(() => profiles.id, { onDelete: "set null" }),
   name: text().notNull(),
   startsOn: date().notNull(),
   /** [{ day, slot, recipeId | foodId, grams }] */

@@ -1,7 +1,7 @@
 // Service worker: deja la app usable sin señal (sótanos de gimnasio).
 // Navegaciones: red primero y caché de respaldo. Estáticos: caché primero.
 
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL_CACHE = `shell-${VERSION}`;
 const STATIC_CACHE = `static-${VERSION}`;
 const SHELL_URLS = ["/", "/entrenar", "/nutricion", "/progreso", "/perfil"];
@@ -30,8 +30,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+          // Lo marcado como no-store (la descarga de datos) nunca entra a la caché.
+          if (!(response.headers.get("cache-control") ?? "").includes("no-store")) {
+            const copy = response.clone();
+            caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(async () => (await caches.match(request)) ?? (await caches.match("/"))),

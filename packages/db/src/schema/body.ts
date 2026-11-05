@@ -28,7 +28,7 @@ export const bodyMeasurements = pgTable(
     measuredOn: date().notNull(),
     site: text().notNull(),
     valueCm: real().notNull(),
-    measuredBy: uuid().references(() => profiles.id),
+    measuredBy: uuid().references(() => profiles.id, { onDelete: "set null" }),
     ...timestamps,
   },
   (t) => [index().on(t.userId, t.site, t.measuredOn)],

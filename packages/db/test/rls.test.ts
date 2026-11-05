@@ -1,8 +1,6 @@
-import { PGlite } from "@electric-sql/pglite";
-import { vector } from "@electric-sql/pglite-pgvector";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import type { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
+import { asUser, migratedDb } from "./helpers";
 
 const ATHLETE = "00000000-0000-0000-0000-00000000000a";
 const COACH = "00000000-0000-0000-0000-00000000000c";
@@ -10,32 +8,12 @@ const STRANGER = "00000000-0000-0000-0000-00000000000f";
 
 let db: PGlite;
 
-async function as<T>(userId: string, sql: string): Promise<T[]> {
-  await db.exec(`SET ROLE authenticated; SELECT set_config('request.jwt.claim.sub', '${userId}', false);`);
-  try {
-    return (await db.query<T>(sql)).rows;
-  } finally {
-    await db.exec("RESET ROLE;");
-  }
-}
+const as = <T>(userId: string, sql: string) => asUser<T>(db, userId, sql);
 
 beforeAll(async () => {
-  db = new PGlite({ extensions: { vector } });
+  db = await migratedDb();
   await db.exec(`
-    CREATE ROLE authenticated;
-    CREATE SCHEMA auth;
-    CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE
-      AS $$ SELECT nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-    GRANT USAGE ON SCHEMA auth TO authenticated;
-  `);
-  const dir = join(import.meta.dirname, "..", "migrations");
-  for (const file of readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()) {
-    for (const sql of readFileSync(join(dir, file), "utf8").split("--> statement-breakpoint")) {
-      if (sql.trim()) await db.exec(sql);
-    }
-  }
-  await db.exec(`
-    GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+    INSERT INTO auth.users (id) VALUES ('${ATHLETE}'), ('${COACH}'), ('${STRANGER}');
     INSERT INTO profiles (id, full_name) VALUES
       ('${ATHLETE}', 'Atleta'), ('${COACH}', 'Entrenador'), ('${STRANGER}', 'Otro');
     INSERT INTO coach_athlete_links (coach_id, athlete_id, status, share_photos)
@@ -77,5 +55,18 @@ describe("seguridad por fila", () => {
     await as(ATHLETE, "UPDATE coach_athlete_links SET status = 'ended'");
     expect(await as(COACH, "SELECT * FROM body_weights")).toHaveLength(0);
     expect(await as(COACH, `SELECT * FROM profiles WHERE id = '${ATHLETE}'`)).toHaveLength(0);
+  });
+
+  it("la agenda se puede leer: el atleta ve sus citas y un tercero no", async () => {
+    await db.exec(`
+      INSERT INTO appointments (id, coach_id, title, starts_at, ends_at)
+        VALUES ('00000000-0000-0000-0000-0000000000a1', '${COACH}', 'Sesión', now(), now());
+      INSERT INTO appointment_attendees (appointment_id, athlete_id)
+        VALUES ('00000000-0000-0000-0000-0000000000a1', '${ATHLETE}');
+    `);
+    expect(await as(ATHLETE, "SELECT * FROM appointments")).toHaveLength(1);
+    expect(await as(COACH, "SELECT * FROM appointment_attendees")).toHaveLength(1);
+    expect(await as(STRANGER, "SELECT * FROM appointments")).toHaveLength(0);
+    expect(await as(STRANGER, "SELECT * FROM appointment_attendees")).toHaveLength(0);
   });
 });

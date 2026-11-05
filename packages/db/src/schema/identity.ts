@@ -185,7 +185,7 @@ export const invitations = pgTable(
     code: text().notNull(),
     email: text(),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
-    acceptedBy: uuid().references(() => profiles.id),
+    acceptedBy: uuid().references(() => profiles.id, { onDelete: "set null" }),
     ...timestamps,
   },
   (t) => [uniqueIndex().on(t.code)],

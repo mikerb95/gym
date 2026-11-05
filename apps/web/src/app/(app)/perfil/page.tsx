@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SignOutButton } from "@/components/sign-out-button";
 import { buttonQuiet, PageHeader, Section } from "@/components/ui";
 import { requireAthlete } from "@/lib/auth";
 
@@ -52,11 +53,12 @@ export default async function ProfilePage() {
           </Link>
           .
         </p>
-        <form action="/auth/salir" method="post">
-          <button type="submit" className={buttonQuiet}>
-            Cerrar sesión
-          </button>
-        </form>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/perfil/privacidad" className={buttonQuiet}>
+            Privacidad y datos
+          </Link>
+          <SignOutButton />
+        </div>
       </Section>
     </>
   );

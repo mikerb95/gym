@@ -22,7 +22,7 @@ export type LoggedSet = {
   completedAt: string | null;
 };
 
-export type LoggedExercise = { key: string; exerciseId: string; sets: LoggedSet[] };
+export type LoggedExercise = { key: string; exerciseId: string; identifiedBy?: "manual" | "camera"; sets: LoggedSet[] };
 
 export type ActiveWorkout = {
   id: string;
@@ -48,6 +48,8 @@ export const workoutPayloadSchema = z.object({
       z.object({
         id: z.uuid(),
         exerciseId: z.uuid(),
+        // Opcional: las sesiones ya en la bandeja de salida no lo traen.
+        identifiedBy: z.enum(["manual", "camera"]).optional(),
         position: z.number().int().min(0),
         weightKg: z.number().min(0).max(1000).nullable(),
         reps: z.number().int().min(0).max(500).nullable(),

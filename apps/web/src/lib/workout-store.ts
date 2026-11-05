@@ -75,6 +75,11 @@ export const workoutStore = {
     const box = workoutStore.getOutbox().filter((p) => p.id !== id);
     write(OUTBOX, box.length ? box : null);
   },
+  /** Borra lo guardado en este dispositivo. Al salir o eliminar la cuenta, para que no pase a otra persona. */
+  clear() {
+    write(ACTIVE, null);
+    write(OUTBOX, null);
+  },
   getRestSeconds: () => read<number>(REST) ?? 90,
   setRestSeconds: (s: number) => write(REST, s),
 };

@@ -4,8 +4,11 @@ import {
   bmrMifflinStJeor,
   bodyFatNavy,
   estimateOneRepMax,
+  isConsentActive,
+  latestConsents,
   macroTargets,
   plateLoad,
+  policyStatus,
   readiness,
   weightForReps,
   weightTrend,
@@ -128,5 +131,46 @@ describe("macros", () => {
   it("las calorías de los macros cuadran", () => {
     const m = macroTargets({ tdee: 2600, weightKg: 80, sex: "male", goal: "muscle_gain", ageYears: 28 });
     expect(m.proteinG * 4 + m.carbsG * 4 + m.fatG * 9).toBeCloseTo(m.kcal, -1);
+  });
+});
+
+describe("autorizaciones", () => {
+  const at = (day: number) => new Date(Date.UTC(2026, 10, day));
+  const record = (purpose: string, day: number, revokedDay?: number) => ({
+    purpose,
+    policyVersion: "2026-11-01",
+    granted: true,
+    grantedAt: at(day),
+    revokedAt: revokedDay ? at(revokedDay) : null,
+  });
+
+  it("toma la decisión más reciente de cada finalidad", () => {
+    const latest = latestConsents([record("marketing", 1, 2), record("marketing", 3), record("service", 1)]);
+    expect(isConsentActive(latest.get("marketing"))).toBe(true);
+    expect(latest.size).toBe(2);
+  });
+
+  it("una autorización revocada o ausente no está vigente", () => {
+    const latest = latestConsents([record("marketing", 1, 2)]);
+    expect(isConsentActive(latest.get("marketing"))).toBe(false);
+    expect(isConsentActive(latest.get("service"))).toBe(false);
+  });
+});
+
+describe("cambios de política", () => {
+  const base = { currentVersion: "2026-12-01", reauthorizationSince: "2026-11-01", acknowledgedVersion: null };
+
+  it("al día si aceptó la versión vigente", () => {
+    expect(policyStatus({ ...base, acceptedVersion: "2026-12-01" })).toBe("current");
+  });
+
+  it("avisa de un cambio informativo hasta que lo vea", () => {
+    expect(policyStatus({ ...base, acceptedVersion: "2026-11-01" })).toBe("notice");
+    expect(policyStatus({ ...base, acceptedVersion: "2026-11-01", acknowledgedVersion: "2026-12-01" })).toBe("current");
+  });
+
+  it("exige nueva autorización si aceptó antes del cambio que la pide, aunque viera el aviso", () => {
+    expect(policyStatus({ ...base, acceptedVersion: "2026-10-01", acknowledgedVersion: "2026-12-01" })).toBe("reauthorize");
+    expect(policyStatus({ ...base, acceptedVersion: null })).toBe("reauthorize");
   });
 });

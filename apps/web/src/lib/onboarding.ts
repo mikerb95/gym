@@ -52,7 +52,7 @@ export const CONSENTS = {
     text: "Acepto los términos de uso y autorizo el tratamiento de mis datos personales según la política de tratamiento de datos, para crear mi cuenta y prestarme el servicio.",
   },
   sensitive_health: {
-    required: true,
+    required: false,
     title: "Datos de salud",
     text: "Autorizo de forma expresa el tratamiento de mis datos de salud (cuestionario médico, peso, medidas, lesiones, sueño y estado de ánimo) para personalizar mi entrenamiento y mi alimentación. Sé que son datos sensibles, que no estoy obligado a entregarlos y que sin ellos la app no puede ajustar el plan a mí. Puedo revocar esta autorización cuando quiera.",
   },
@@ -110,13 +110,15 @@ export const onboardingSchema = z
     experience: z.enum(["beginner", "intermediate", "advanced"]),
     trainingDaysPerWeek: z.number().int().min(1).max(7),
     sessionMinutes: z.number().int().min(20).max(180),
+    parqSkipped: z.boolean(),
     parq: z.record(z.enum(PARQ_QUESTIONS.map((q) => q.id) as [ParqId, ...ParqId[]]), z.boolean()),
     emergencyContactName: z.string().trim().max(80),
     emergencyContactPhone: z.string().trim().max(20),
     guardianName: z.string().trim().max(80),
     consents: z.object({
       service: z.literal(true, "Debes aceptar los términos para crear tu cuenta"),
-      sensitive_health: z.literal(true, "Sin esta autorización la app no puede personalizar tu plan"),
+      // Ley 1581, art. 6: nadie está obligado a autorizar el tratamiento de datos sensibles.
+      sensitive_health: z.boolean(),
       machine_photos_training: z.boolean(),
       marketing: z.boolean(),
       guardian: z.boolean(),
@@ -133,7 +135,7 @@ export const onboardingSchema = z
       if (!v.consents.guardian)
         ctx.addIssue({ code: "custom", path: ["consents", "guardian"], message: "Tu representante legal debe autorizar" });
     }
-    if (PARQ_QUESTIONS.some((q) => v.parq[q.id] === undefined)) {
+    if (!v.parqSkipped && PARQ_QUESTIONS.some((q) => v.parq[q.id] === undefined)) {
       ctx.addIssue({ code: "custom", path: ["parq"], message: "Responde todas las preguntas" });
     }
     if (v.sex === "male" && v.pregnant) ctx.addIssue({ code: "custom", path: ["pregnant"], message: "Dato no válido" });

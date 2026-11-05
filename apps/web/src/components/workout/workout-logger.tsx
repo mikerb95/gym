@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Check, Minus, Plus, Search, Timer, Trash2, Trophy, X } from "lucide-react";
+import { Camera, Check, Minus, Plus, Search, Timer, Trash2, Trophy, X } from "lucide-react";
 import { saveWorkout, type SaveWorkoutResult } from "@/app/(app)/entrenar/actions";
 import { buttonPrimary, buttonQuiet } from "@/components/ui";
+import { MachineScanner } from "@/components/workout/machine-scanner";
 import { fmt } from "@/lib/format";
 import {
   MUSCLE_LABELS,
@@ -29,6 +30,8 @@ export function WorkoutLogger({ catalog, last }: Props) {
   const workout = useSyncExternalStore(subscribe, workoutStore.getActive, () => undefined);
   const [closed, setClosed] = useState(false);
   const [picking, setPicking] = useState<boolean | null>(null);
+  const [pickerQuery, setPickerQuery] = useState("");
+  const [scanning, setScanning] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [rest, setRest] = useState<{ endsAt: number; total: number } | null>(null);
@@ -44,6 +47,16 @@ export function WorkoutLogger({ catalog, last }: Props) {
   function update(fn: (w: ActiveWorkout) => ActiveWorkout) {
     const current = workoutStore.getActive();
     if (current) workoutStore.setActive(fn(current));
+  }
+
+  function addExercise(exercise: CatalogExercise, identifiedBy?: LoggedExercise["identifiedBy"]) {
+    update((w) => ({
+      ...w,
+      exercises: [
+        ...w.exercises,
+        { key: crypto.randomUUID(), exerciseId: exercise.id, identifiedBy, sets: [newSet(exercise, last[exercise.id], [])] },
+      ],
+    }));
   }
 
   function close() {
@@ -121,24 +134,54 @@ export function WorkoutLogger({ catalog, last }: Props) {
         </p>
       ) : null}
 
-      <button type="button" onClick={() => setPicking(true)} className={`${buttonQuiet} mt-4 w-full`}>
-        <Plus aria-hidden size={20} />
-        Agregar ejercicio
-      </button>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => {
+            setPickerQuery("");
+            setPicking(true);
+          }}
+          className={buttonQuiet}
+        >
+          <Plus aria-hidden size={20} />
+          Agregar ejercicio
+        </button>
+        <button type="button" onClick={() => setScanning(true)} className={buttonQuiet}>
+          <Camera aria-hidden size={20} />
+          Identificar máquina
+        </button>
+      </div>
 
       {rest ? <RestTimer rest={rest} onChange={setRest} /> : null}
 
-      {(picking ?? workout.exercises.length === 0) ? (
+      {scanning ? (
+        <MachineScanner
+          catalog={catalog}
+          onClose={() => setScanning(false)}
+          onPick={(exercise) => {
+            setScanning(false);
+            setPicking(false);
+            addExercise(exercise, "camera");
+          }}
+          onManual={(query) => {
+            setScanning(false);
+            setPickerQuery(query);
+            setPicking(true);
+          }}
+        />
+      ) : (picking ?? workout.exercises.length === 0) ? (
         <ExercisePicker
           catalog={catalog}
           last={last}
+          initialQuery={pickerQuery}
           onClose={() => setPicking(false)}
+          onScan={() => {
+            setPicking(false);
+            setScanning(true);
+          }}
           onPick={(exercise) => {
             setPicking(false);
-            update((w) => ({
-              ...w,
-              exercises: [...w.exercises, { key: crypto.randomUUID(), exerciseId: exercise.id, sets: [newSet(exercise, last[exercise.id], [])] }],
-            }));
+            addExercise(exercise);
           }}
         />
       ) : null}
@@ -477,16 +520,20 @@ function RestTimer({
 function ExercisePicker({
   catalog,
   last,
+  initialQuery,
   onPick,
+  onScan,
   onClose,
 }: {
   catalog: CatalogExercise[];
   last: LastPerformance;
+  initialQuery: string;
   onPick: (e: CatalogExercise) => void;
+  onScan: () => void;
   onClose: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
 
   useEffect(() => {
     dialog.current?.showModal();
@@ -529,6 +576,14 @@ function ExercisePicker({
           </button>
         </div>
         <div className="flex-1 overflow-y-auto overscroll-contain p-2">
+          <button
+            type="button"
+            onClick={onScan}
+            className="mb-1 flex min-h-14 w-full items-center gap-3 rounded-xl bg-cobalt-tint px-3 py-2 text-left font-semibold"
+          >
+            <Camera aria-hidden size={20} className="shrink-0 text-cobalt" />
+            Identificar máquina con la cámara
+          </button>
           {recent.length ? (
             <>
               <p className="px-3 pt-2 pb-1 text-sm font-medium text-muted">Hechos hace poco</p>
@@ -600,7 +655,7 @@ function FinishPanel({
   const [pending, startTransition] = useTransition();
 
   const done = workout.exercises.flatMap((e, ei) =>
-    e.sets.filter((s) => s.done).map((s) => ({ ...s, exerciseId: e.exerciseId, ei })),
+    e.sets.filter((s) => s.done).map((s) => ({ ...s, exerciseId: e.exerciseId, identifiedBy: e.identifiedBy, ei })),
   );
   const volume = done.reduce((sum, s) => sum + (s.weightKg ?? 0) * (s.reps ?? 0), 0);
   const [openedAt] = useState(() => Date.now());
@@ -619,6 +674,7 @@ function FinishPanel({
       sets: done.map((s, position) => ({
         id: s.id,
         exerciseId: s.exerciseId,
+        identifiedBy: s.identifiedBy,
         position,
         weightKg: s.weightKg,
         reps: s.reps,

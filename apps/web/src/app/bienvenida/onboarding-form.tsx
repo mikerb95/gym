@@ -56,6 +56,7 @@ export function OnboardingForm() {
     experience: "beginner",
     trainingDaysPerWeek: 3,
     sessionMinutes: 60,
+    parqSkipped: false,
     parq: {},
     emergencyContactName: "",
     emergencyContactPhone: "",
@@ -238,6 +239,18 @@ export function OnboardingForm() {
 
         {step === 2 ? (
           <>
+            <button
+              type="button"
+              aria-pressed={draft.parqSkipped}
+              onClick={() => set("parqSkipped", !draft.parqSkipped)}
+              className="min-h-12 rounded-xl bg-sunken px-4 py-2 text-left font-semibold text-muted aria-pressed:bg-cobalt-tint aria-pressed:text-ink"
+            >
+              Prefiero no responder
+              <span className="mt-0.5 block text-sm font-normal">
+                No es obligatorio. Sin estas respuestas no podemos advertirte si conviene una valoración médica.
+              </span>
+            </button>
+            {draft.parqSkipped ? null : (
             <ul className="grid gap-3">
               {PARQ_QUESTIONS.map((q) => (
                 <li key={q.id} className="rounded-2xl bg-surface p-4 shadow-[0_1px_3px_rgb(0_0_0/0.08)]">
@@ -262,8 +275,9 @@ export function OnboardingForm() {
                 </li>
               ))}
             </ul>
+            )}
             {errors.parq ? <ErrorText>{errors.parq}</ErrorText> : null}
-            {parqYes ? (
+            {parqYes && !draft.parqSkipped ? (
               <div className="flex gap-3 rounded-2xl bg-amber-tint p-4">
                 <TriangleAlert aria-hidden className="mt-0.5 shrink-0 text-amber" />
                 <p className="text-[15px] leading-relaxed">
@@ -327,6 +341,7 @@ export function OnboardingForm() {
               .map((purpose) => {
                 const c = CONSENTS[purpose];
                 const required = c.required || purpose === "guardian";
+                const withoutHealth = purpose === "sensitive_health" && !draft.consents.sensitive_health;
                 return (
                   <div key={purpose}>
                     <Toggle
@@ -336,6 +351,12 @@ export function OnboardingForm() {
                       detail={c.text}
                     />
                     {errors[`consents.${purpose}`] ? <ErrorText>{errors[`consents.${purpose}`]}</ErrorText> : null}
+                    {withoutHealth ? (
+                      <p className="mt-2 px-1 text-sm leading-relaxed text-muted">
+                        Sin esta autorización no guardamos tu peso, tu estatura ni tu cuestionario. Podrás usar las
+                        herramientas generales, y activarla después desde tu perfil.
+                      </p>
+                    ) : null}
                   </div>
                 );
               })}

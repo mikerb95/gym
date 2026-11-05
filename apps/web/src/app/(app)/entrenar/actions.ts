@@ -44,7 +44,7 @@ export async function saveWorkout(input: unknown): Promise<SaveWorkoutResult> {
           id: s.id,
           workoutSessionId: w.id,
           exerciseId: s.exerciseId,
-          identifiedBy: "manual",
+          identifiedBy: s.identifiedBy ?? "manual",
           position: s.position,
           weightKg: s.weightKg,
           reps: s.reps,

@@ -1,12 +1,12 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { withRls } from "@gym/db";
 import { athleteProfiles, auditLog, bodyWeights, consents, medicalScreenings, profiles } from "@gym/db/schema";
 import { getViewer } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { requestEvidence } from "@/lib/evidence";
 import { LEGAL } from "@/lib/legal";
 import { ageOn, CONSENTS, onboardingSchema, PARQ_QUESTIONS, type ConsentPurpose } from "@/lib/onboarding";
 
@@ -30,14 +30,12 @@ export async function completeOnboarding(input: unknown): Promise<OnboardingResu
 
   const v = parsed.data;
   const minor = ageOn(v.birthDate) < 18;
-  const requiresClearance = PARQ_QUESTIONS.some((q) => v.parq[q.id]);
+  // Sin autorización de datos de salud no se guarda ninguno, aunque el formulario los haya recogido.
+  const healthAllowed = v.consents.sensitive_health;
+  const saveScreening = healthAllowed && !v.parqSkipped;
+  const requiresClearance = saveScreening && PARQ_QUESTIONS.some((q) => v.parq[q.id]);
   const now = new Date();
-  const h = await headers();
-  const evidence = {
-    ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-    userAgent: h.get("user-agent"),
-    email: viewer.email,
-  };
+  const evidence = await requestEvidence(viewer.email);
 
   // Datos del usuario: con RLS, como el propio usuario.
   await withRls(db, viewer.claims, async (tx) => {
@@ -45,7 +43,7 @@ export async function completeOnboarding(input: unknown): Promise<OnboardingResu
       fullName: v.fullName,
       birthDate: v.birthDate,
       sex: v.sex,
-      heightCm: v.heightCm,
+      heightCm: healthAllowed ? v.heightCm : null,
     };
     await tx
       .insert(profiles)
@@ -57,7 +55,7 @@ export async function completeOnboarding(input: unknown): Promise<OnboardingResu
       experience: v.experience,
       trainingDaysPerWeek: v.trainingDaysPerWeek,
       sessionMinutes: v.sessionMinutes,
-      pregnant: v.sex === "female" && v.pregnant,
+      pregnant: healthAllowed && v.sex === "female" && v.pregnant,
       emergencyContactName: v.emergencyContactName || null,
       emergencyContactPhone: v.emergencyContactPhone || null,
       guardianName: minor ? v.guardianName : null,
@@ -68,8 +66,12 @@ export async function completeOnboarding(input: unknown): Promise<OnboardingResu
       .values({ userId: viewer.id, ...athlete })
       .onConflictDoUpdate({ target: athleteProfiles.userId, set: athlete });
 
-    await tx.insert(bodyWeights).values({ userId: viewer.id, measuredOn: todayInBogota(), weightKg: v.weightKg });
-    await tx.insert(medicalScreenings).values({ userId: viewer.id, answers: v.parq, requiresClearance });
+    if (healthAllowed) {
+      await tx.insert(bodyWeights).values({ userId: viewer.id, measuredOn: todayInBogota(), weightKg: v.weightKg });
+    }
+    if (saveScreening) {
+      await tx.insert(medicalScreenings).values({ userId: viewer.id, answers: v.parq, requiresClearance });
+    }
   });
 
   // Consentimientos y auditoría: solo los escribe el servidor, con la evidencia.
@@ -89,7 +91,7 @@ export async function completeOnboarding(input: unknown): Promise<OnboardingResu
       subjectUserId: viewer.id,
       action: "onboarding.completed",
       resource: "profile",
-      metadata: { requiresClearance, minor, policyVersion: LEGAL.policyVersion },
+      metadata: { requiresClearance, minor, healthAllowed, policyVersion: LEGAL.policyVersion },
     });
   });
 

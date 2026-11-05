@@ -155,7 +155,9 @@ export default function PrivacyPage() {
       <p>
         Ciframos los datos en tránsito y en reposo. Cada usuario solo puede leer lo suyo, y esa regla la aplica la
         propia base de datos, no solo la app. Las fotos se guardan en almacenamiento privado y se muestran con enlaces
-        temporales. Registramos quién accede a datos de otra persona.
+        temporales. Las fotos que tomas para identificar una máquina se envían a nuestro proveedor de inteligencia
+        artificial solo para analizarlas y no las guardamos, salvo que autorices usarlas para mejorar el reconocimiento.
+        Registramos quién accede a datos de otra persona.
       </p>
 
       <h2>11. Cuánto tiempo los guardamos</h2>

@@ -15,6 +15,20 @@
       "when": 1793251513022,
       "tag": "0001_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793882379584,
+      "tag": "0002_delete_account_fks",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793882381399,
+      "tag": "0003_privacy",
+      "breakpoints": true
     }
   ]
 }

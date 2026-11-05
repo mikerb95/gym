@@ -2,7 +2,9 @@ import { Suspense } from "react";
 import { AppNav } from "@/components/app-nav";
 import { OfflineBanner } from "@/components/offline-banner";
 import { OutboxSync } from "@/components/workout/outbox-sync";
+import { PolicyGate, PolicyNotice } from "@/components/policy-notice";
 import { requireAthlete } from "@/lib/auth";
+import { getPolicyStatus } from "@/lib/privacy";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
@@ -22,7 +24,14 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 /** Sin sesión va a ingresar; sin perfil completo, al onboarding. */
 async function Gate({ children }: { children: React.ReactNode }) {
   await requireAthlete();
-  return children;
+  const status = await getPolicyStatus();
+  if (status === "reauthorize") return <PolicyGate />;
+  return (
+    <>
+      {status === "notice" ? <PolicyNotice /> : null}
+      {children}
+    </>
+  );
 }
 
 function PageSkeleton() {

@@ -33,7 +33,9 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(
     params.get("error") === "enlace" ? "El enlace no es válido o ya venció. Pide uno nuevo." : null,
   );
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(
+    params.get("cuenta") === "eliminada" ? "Tu cuenta y tus datos se eliminaron." : null,
+  );
   const [pending, startTransition] = useTransition();
 
   function sendCode() {

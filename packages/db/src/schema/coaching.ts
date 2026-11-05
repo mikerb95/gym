@@ -38,7 +38,7 @@ export const weeklyCheckins = pgTable(
     weekStart: date().notNull(),
     templateId: uuid().references(() => checkinTemplates.id, { onDelete: "set null" }),
     answers: jsonb().notNull(),
-    reviewedBy: uuid().references(() => profiles.id),
+    reviewedBy: uuid().references(() => profiles.id, { onDelete: "set null" }),
     reviewedAt: timestamp({ withTimezone: true }),
     coachReply: text(),
     ...timestamps,

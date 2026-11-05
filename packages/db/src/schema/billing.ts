@@ -40,10 +40,9 @@ export const payments = pgTable(
   {
     id: uuid().primaryKey().defaultRandom(),
     subscriptionId: uuid().references(() => subscriptions.id, { onDelete: "set null" }),
-    payerId: uuid()
-      .notNull()
-      .references(() => profiles.id),
-    payeeCoachId: uuid().references(() => profiles.id),
+    /** Sin dato si el titular eliminó su cuenta: el pago se conserva por obligación contable. */
+    payerId: uuid().references(() => profiles.id, { onDelete: "set null" }),
+    payeeCoachId: uuid().references(() => profiles.id, { onDelete: "set null" }),
     amountCop: integer().notNull(),
     platformFeeCop: integer().default(0).notNull(),
     /** pse | nequi | card | daviplata */
