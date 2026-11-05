@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { createDb } from "../src/index";
 import { exercises } from "../src/schema/training";
 import { EXERCISES } from "../src/seed/exercises";
+import { MACHINE_GUIDES } from "../src/seed/machine-guides";
 
 const db = createDb(process.env.DATABASE_URL_MIGRATIONS ?? process.env.DATABASE_URL);
 
@@ -19,7 +20,8 @@ await db
       secondaryMuscles: e.secondaryMuscles ?? [],
       equipment: e.equipment,
       level: e.level ?? "beginner",
-      cues: e.cues ?? [],
+      cues: MACHINE_GUIDES[e.slug]?.cues ?? e.cues ?? [],
+      commonMistakes: MACHINE_GUIDES[e.slug]?.mistakes ?? [],
       tracksWeight: e.tracksWeight ?? true,
       tracksDistance: e.tracksDistance ?? false,
       tracksDuration: e.tracksDuration ?? false,
@@ -36,6 +38,7 @@ await db
       equipment: sql`excluded.equipment`,
       level: sql`excluded.level`,
       cues: sql`excluded.cues`,
+      commonMistakes: sql`excluded.common_mistakes`,
       tracksWeight: sql`excluded.tracks_weight`,
       tracksDistance: sql`excluded.tracks_distance`,
       tracksDuration: sql`excluded.tracks_duration`,

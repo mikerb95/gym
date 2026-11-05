@@ -5,3 +5,4 @@ export * from "./readiness";
 export * from "./nutrition";
 export * from "./privacy";
 export * from "./programming";
+export * from "./alternatives";

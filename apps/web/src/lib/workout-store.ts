@@ -11,6 +11,7 @@ import type { ActiveWorkout, WorkoutPayload } from "./workout";
 const ACTIVE = "sr:workout:active";
 const OUTBOX = "sr:workout:outbox";
 const REST = "sr:workout:rest";
+const MACHINE_NOTES = "sr:machine:notes";
 
 // Memoria de respaldo por si el navegador bloquea localStorage (modo privado).
 const memory = new Map<string, string>();
@@ -79,6 +80,13 @@ export const workoutStore = {
   clear() {
     write(ACTIVE, null);
     write(OUTBOX, null);
+    write(MACHINE_NOTES, null);
+  },
+  /** Mi ajuste por ejercicio: altura del asiento, número de placa. Vive solo en este teléfono. */
+  getMachineNotes: () => read<Record<string, string>>(MACHINE_NOTES),
+  setMachineNote(exerciseId: string, note: string) {
+    const { [exerciseId]: _previous, ...others } = workoutStore.getMachineNotes() ?? {};
+    write(MACHINE_NOTES, note ? { ...others, [exerciseId]: note } : others);
   },
   getRestSeconds: () => read<number>(REST) ?? 90,
   setRestSeconds: (s: number) => write(REST, s),

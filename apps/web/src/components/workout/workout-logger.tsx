@@ -6,25 +6,50 @@ import Link from "next/link";
 import { Camera, Check, Minus, Plus, Search, Timer, Trash2, Trophy, X } from "lucide-react";
 import { saveWorkout, type SaveWorkoutResult } from "@/app/(app)/entrenar/actions";
 import { buttonPrimary, buttonQuiet } from "@/components/ui";
+import { ExerciseHelp } from "@/components/workout/exercise-help";
 import { MachineScanner } from "@/components/workout/machine-scanner";
+import { loadIncrementKg, proposeLoad } from "@gym/core";
 import { fmt } from "@/lib/format";
 import {
   MUSCLE_LABELS,
   normalize,
   type ActiveWorkout,
   type CatalogExercise,
+  type ExercisePlan,
   type LastPerformance,
   type LoggedExercise,
   type LoggedSet,
+  type PlannedWorkout,
   type WorkoutPayload,
 } from "@/lib/workout";
 import { parseDecimal, subscribe, workoutStore } from "@/lib/workout-store";
 
-type Props = { catalog: CatalogExercise[]; last: LastPerformance };
+type Props = { catalog: CatalogExercise[]; last: LastPerformance; planned?: PlannedWorkout | null };
 
 type Outcome = { kind: "saved"; records: Extract<SaveWorkoutResult, { ok: true }>["records"] } | { kind: "queued" };
 
-export function WorkoutLogger({ catalog, last }: Props) {
+/** Arma la sesión desde el programa: parte de lo último que hizo, y la propuesta de carga queda por decidir. */
+function workoutFromPlan(planned: PlannedWorkout, byId: Map<string, CatalogExercise>, last: LastPerformance): ActiveWorkout {
+  const exercises: LoggedExercise[] = [];
+  for (const { exerciseId, plan } of planned.exercises) {
+    const exercise = byId.get(exerciseId);
+    if (!exercise) continue;
+    const sets: LoggedSet[] = [];
+    for (let i = 0; i < plan.sets; i++) {
+      const set = newSet(exercise, last[exerciseId], sets);
+      sets.push({
+        ...set,
+        reps: plan.repsMin ?? set.reps,
+        rir: plan.rir ?? set.rir,
+        durationSeconds: plan.durationS ?? set.durationSeconds,
+      });
+    }
+    exercises.push({ key: crypto.randomUUID(), exerciseId, plan, sets });
+  }
+  return { id: crypto.randomUUID(), startedAt: new Date().toISOString(), plannedSessionId: planned.id, exercises };
+}
+
+export function WorkoutLogger({ catalog, last, planned }: Props) {
   const router = useRouter();
   // undefined mientras se lee el teléfono (y en el servidor); null si no hay sesión.
   const workout = useSyncExternalStore(subscribe, workoutStore.getActive, () => undefined);
@@ -40,9 +65,13 @@ export function WorkoutLogger({ catalog, last }: Props) {
   // Sin sesión abierta en el teléfono: se crea una al entrar.
   useEffect(() => {
     if (workout === null && !closed) {
-      workoutStore.setActive({ id: crypto.randomUUID(), startedAt: new Date().toISOString(), exercises: [] });
+      workoutStore.setActive(
+        planned
+          ? workoutFromPlan(planned, byId, last)
+          : { id: crypto.randomUUID(), startedAt: new Date().toISOString(), exercises: [] },
+      );
     }
-  }, [workout, closed]);
+  }, [workout, closed, planned, byId, last]);
 
   function update(fn: (w: ActiveWorkout) => ActiveWorkout) {
     const current = workoutStore.getActive();
@@ -54,8 +83,30 @@ export function WorkoutLogger({ catalog, last }: Props) {
       ...w,
       exercises: [
         ...w.exercises,
-        { key: crypto.randomUUID(), exerciseId: exercise.id, identifiedBy, sets: [newSet(exercise, last[exercise.id], [])] },
+        {
+          key: crypto.randomUUID(),
+          exerciseId: exercise.id,
+          identifiedBy,
+          suggestion: freeSuggestion(exercise, last[exercise.id]),
+          sets: [newSet(exercise, last[exercise.id], [])],
+        },
       ],
+    }));
+  }
+
+  /** La máquina está ocupada: cambia el ejercicio y conserva lo que pedía el programa, menos la carga. */
+  function swapExercise(logged: LoggedExercise, exercise: CatalogExercise) {
+    const history = last[exercise.id];
+    const plan = logged.plan ? { ...logged.plan, proposal: null, proposalDecision: undefined } : undefined;
+    const sets: LoggedSet[] = [];
+    for (let i = 0; i < Math.max(1, logged.sets.length); i += 1) sets.push(newSet(exercise, history, sets));
+    update((w) => ({
+      ...w,
+      exercises: w.exercises.map((e) =>
+        e.key === logged.key
+          ? { key: crypto.randomUUID(), exerciseId: exercise.id, plan, suggestion: plan ? undefined : freeSuggestion(exercise, history), sets }
+          : e,
+      ),
     }));
   }
 
@@ -105,6 +156,12 @@ export function WorkoutLogger({ catalog, last }: Props) {
         </button>
       </header>
 
+      {planned && workout.plannedSessionId !== planned.id ? (
+        <p className="mt-4 rounded-xl bg-amber-tint px-4 py-3 text-[15px] leading-relaxed">
+          Ya tenías una sesión abierta. Termínala o descártala para empezar {planned.name}.
+        </p>
+      ) : null}
+
       <div className="mt-4 grid gap-4">
         {workout.exercises.map((logged) => {
           const exercise = byId.get(logged.exerciseId);
@@ -115,12 +172,16 @@ export function WorkoutLogger({ catalog, last }: Props) {
               exercise={exercise}
               logged={logged}
               last={last[logged.exerciseId]}
+              catalog={catalog}
+              lastAll={last}
+              inSession={workout.exercises.map((e) => e.exerciseId)}
+              onSwap={(next) => swapExercise(logged, next)}
               onChange={(next) =>
                 update((w) => ({ ...w, exercises: w.exercises.map((e) => (e.key === logged.key ? next : e)) }))
               }
               onRemove={() => update((w) => ({ ...w, exercises: w.exercises.filter((e) => e.key !== logged.key) }))}
               onSetDone={() => {
-                const total = workoutStore.getRestSeconds();
+                const total = logged.plan?.restSeconds ?? workoutStore.getRestSeconds();
                 setRest({ endsAt: Date.now() + total * 1000, total });
               }}
             />
@@ -189,6 +250,21 @@ export function WorkoutLogger({ catalog, last }: Props) {
   );
 }
 
+// Rango general para proponer carga cuando no hay un programa que fije otro.
+const FREE_REPS = { min: 8, max: 12, rir: 2 };
+
+function freeSuggestion(exercise: CatalogExercise, last: LastPerformance[string] | undefined) {
+  if (!exercise.tracksWeight || !last) return undefined;
+  const proposal = proposeLoad({
+    last: last.sets,
+    repsMin: FREE_REPS.min,
+    repsMax: FREE_REPS.max,
+    targetRir: FREE_REPS.rir,
+    incrementKg: loadIncrementKg(exercise),
+  });
+  return proposal ? { proposal } : undefined;
+}
+
 /** Serie nueva: copia la anterior de hoy o, si no hay, la de la última vez. */
 function newSet(exercise: CatalogExercise, last: LastPerformance[string] | undefined, current: LoggedSet[]): LoggedSet {
   const previous = current.at(-1);
@@ -237,6 +313,10 @@ function ExerciseCard({
   exercise,
   logged,
   last,
+  catalog,
+  lastAll,
+  inSession,
+  onSwap,
   onChange,
   onRemove,
   onSetDone,
@@ -244,6 +324,10 @@ function ExerciseCard({
   exercise: CatalogExercise;
   logged: LoggedExercise;
   last: LastPerformance[string] | undefined;
+  catalog: CatalogExercise[];
+  lastAll: LastPerformance;
+  inSession: string[];
+  onSwap: (next: CatalogExercise) => void;
   onChange: (next: LoggedExercise) => void;
   onRemove: () => void;
   onSetDone: () => void;
@@ -261,7 +345,7 @@ function ExerciseCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="heading text-xl">{exercise.name}</h2>
-          <p className="mt-1 text-sm text-muted">{summary ?? "Primera vez: elige un peso con el que puedas hacer las repeticiones con buena técnica."}</p>
+          <p className="mt-1 text-sm text-muted">{summary ?? "Primera vez: empieza liviano, con un peso que te permita hacer 12 repeticiones y te sobren al menos 3."}</p>
         </div>
         {confirmRemove ? (
           <div className="flex shrink-0 gap-1">
@@ -283,6 +367,46 @@ function ExerciseCard({
           </button>
         )}
       </div>
+
+      {logged.plan ? <PlanTarget plan={logged.plan} /> : null}
+      {logged.plan?.proposal ? (
+        <ProposalCard
+          plan={logged.plan}
+          onDecide={(decision) => {
+            const plan = { ...logged.plan!, proposalDecision: decision };
+            const weightKg = logged.plan!.proposal!.weightKg;
+            onChange({
+              ...logged,
+              plan,
+              sets: decision === "accepted" ? logged.sets.map((s) => (s.done ? s : { ...s, weightKg })) : logged.sets,
+            });
+          }}
+        />
+      ) : null}
+
+      {!logged.plan && logged.suggestion?.proposal ? (
+        <ProposalCard
+          plan={logged.suggestion}
+          onDecide={(decision) => {
+            const weightKg = logged.suggestion!.proposal!.weightKg;
+            onChange({
+              ...logged,
+              suggestion: { ...logged.suggestion!, proposalDecision: decision },
+              sets: decision === "accepted" ? logged.sets.map((s) => (s.done ? s : { ...s, weightKg })) : logged.sets,
+            });
+          }}
+        />
+      ) : null}
+
+      <ExerciseHelp
+        exercise={exercise}
+        catalog={catalog}
+        last={lastAll}
+        inSession={inSession}
+        openFirst={logged.identifiedBy === "camera" && !last && !logged.sets.some((s) => s.done)}
+        canSwap={!logged.sets.some((s) => s.done)}
+        onSwap={onSwap}
+      />
 
       <div className="mt-4 grid gap-2">
         <div className="grid grid-cols-[2rem_1fr_1fr_4.5rem_3rem] items-center gap-2 px-1 text-xs font-medium text-muted">
@@ -323,6 +447,47 @@ function ExerciseCard({
         Agregar serie
       </button>
     </section>
+  );
+}
+
+function PlanTarget({ plan }: { plan: NonNullable<LoggedExercise["plan"]> }) {
+  const series = `${plan.sets} ${plan.sets === 1 ? "serie" : "series"}`;
+  const target = plan.durationS
+    ? `${series} de ${plan.durationS} segundos`
+    : `${series} de ${plan.repsMin === plan.repsMax ? plan.repsMin : `${plan.repsMin} a ${plan.repsMax}`} repeticiones, dejando ${plan.rir} en reserva`;
+  return <p className="mt-3 text-[15px] font-medium">Meta: {target}</p>;
+}
+
+/** Propuesta de carga. Nunca se aplica sola: el atleta la acepta o sigue con lo que venía. */
+function ProposalCard({
+  plan,
+  onDecide,
+}: {
+  plan: Pick<ExercisePlan, "proposal" | "proposalDecision">;
+  onDecide: (decision: "accepted" | "kept") => void;
+}) {
+  const proposal = plan.proposal!;
+  if (proposal.action === "keep") return <p className="mt-2 text-[15px] leading-relaxed text-muted">{proposal.reason}</p>;
+  if (plan.proposalDecision) {
+    return (
+      <p className="mt-2 text-[15px] leading-relaxed text-muted">
+        {plan.proposalDecision === "accepted" ? `Vas con ${fmt(proposal.weightKg)} kg.` : "Sigues con el peso que traías."}
+      </p>
+    );
+  }
+  return (
+    <div className="mt-3 rounded-xl bg-cobalt-tint p-3">
+      <p className="font-semibold">Propuesta: {fmt(proposal.weightKg)} kg</p>
+      <p className="mt-1 text-[15px] leading-relaxed">{proposal.reason}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={() => onDecide("accepted")} className={`${buttonPrimary} min-h-11 px-4`}>
+          Aceptar
+        </button>
+        <button type="button" onClick={() => onDecide("kept")} className={`${buttonQuiet} min-h-11 bg-surface px-4`}>
+          Seguir igual
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -666,6 +831,7 @@ function FinishPanel({
     setError(null);
     const payload: WorkoutPayload = {
       id: workout.id,
+      plannedSessionId: workout.plannedSessionId,
       startedAt: workout.startedAt,
       endedAt: new Date().toISOString(),
       sessionRpe: rpe,

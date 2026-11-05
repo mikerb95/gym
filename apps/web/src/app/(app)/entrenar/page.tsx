@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { OneRepMax } from "@/components/one-rep-max";
 import { PlateCalculator } from "@/components/plate-calculator";
 import { PageHeader, Section } from "@/components/ui";
@@ -13,7 +14,14 @@ export default async function TrainPage() {
   return (
     <>
       <PageHeader title="Entrenar" lead="Registra tus series, carga la barra sin hacer cuentas y calcula tus pesos." />
-      <Section title="Hoy">
+      <Section
+        title="Hoy"
+        aside={
+          <Link href="/entrenar/programa" className="font-medium text-cobalt underline-offset-2 hover:underline">
+            Tu programa
+          </Link>
+        }
+      >
         <StartWorkout />
       </Section>
       <Section title="Tus sesiones">

@@ -2,7 +2,7 @@
 
 import { and, eq, inArray, max } from "drizzle-orm";
 import { estimateOneRepMax } from "@gym/core";
-import { exercises, performedSets, personalRecords, workoutSessions } from "@gym/db/schema";
+import { exercises, performedSets, personalRecords, plannedSessions, programs, workoutSessions } from "@gym/db/schema";
 import { asViewer } from "@/lib/auth";
 import { workoutPayloadSchema } from "@/lib/workout";
 
@@ -20,11 +20,21 @@ export async function saveWorkout(input: unknown): Promise<SaveWorkoutResult> {
   const w = parsed.data;
 
   return asViewer(async (tx, viewer) => {
+    // Solo se enlaza a una sesión de un programa propio.
+    const [planned] = w.plannedSessionId
+      ? await tx
+          .select({ id: plannedSessions.id })
+          .from(plannedSessions)
+          .innerJoin(programs, eq(programs.id, plannedSessions.programId))
+          .where(and(eq(plannedSessions.id, w.plannedSessionId), eq(programs.athleteId, viewer.id)))
+      : [];
+
     const inserted = await tx
       .insert(workoutSessions)
       .values({
         id: w.id,
         userId: viewer.id,
+        plannedSessionId: planned?.id,
         startedAt: new Date(w.startedAt),
         endedAt: new Date(w.endedAt),
         sessionRpe: w.sessionRpe,

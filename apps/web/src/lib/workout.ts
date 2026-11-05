@@ -1,11 +1,17 @@
 import { z } from "zod";
+import type { LoadProposal } from "@gym/core";
 
 /** Ejercicio del catálogo tal como lo necesita el registro. */
 export type CatalogExercise = {
   id: string;
   name: string;
   aliases: string[];
+  movementPattern: string;
   primaryMuscles: string[];
+  equipment: string[];
+  /** Cómo hacerlo y errores comunes. */
+  cues: string[];
+  commonMistakes: string[];
   tracksWeight: boolean;
   tracksDuration: boolean;
   tracksDistance: boolean;
@@ -22,22 +28,52 @@ export type LoggedSet = {
   completedAt: string | null;
 };
 
-export type LoggedExercise = { key: string; exerciseId: string; identifiedBy?: "manual" | "camera"; sets: LoggedSet[] };
+/** Lo que el programa pide para un ejercicio, y la propuesta de carga que el atleta decide. */
+export type ExercisePlan = {
+  repsMin: number | null;
+  repsMax: number | null;
+  rir: number | null;
+  durationS: number | null;
+  sets: number;
+  restSeconds: number | null;
+  proposal: LoadProposal | null;
+  proposalDecision?: "accepted" | "kept";
+};
+
+export type LoggedExercise = {
+  key: string;
+  exerciseId: string;
+  identifiedBy?: "manual" | "camera";
+  plan?: ExercisePlan;
+  /** Propuesta de carga en una sesión libre, sin programa. */
+  suggestion?: Pick<ExercisePlan, "proposal" | "proposalDecision">;
+  sets: LoggedSet[];
+};
 
 export type ActiveWorkout = {
   id: string;
   startedAt: string;
+  plannedSessionId?: string;
   exercises: LoggedExercise[];
+};
+
+/** Sesión del programa lista para empezar. */
+export type PlannedWorkout = {
+  id: string;
+  name: string;
+  exercises: { exerciseId: string; plan: ExercisePlan }[];
 };
 
 /** Última vez que el usuario hizo cada ejercicio: sus series completadas. */
 export type LastPerformance = Record<
   string,
-  { date: string; sets: { weightKg: number | null; reps: number | null; durationSeconds: number | null }[] }
+  { date: string; sets: { weightKg: number | null; reps: number | null; rir?: number | null; durationSeconds: number | null }[] }
 >;
 
 export const workoutPayloadSchema = z.object({
   id: z.uuid(),
+  // Opcional: las sesiones ya en la bandeja de salida no lo traen.
+  plannedSessionId: z.uuid().optional(),
   startedAt: z.iso.datetime(),
   endedAt: z.iso.datetime(),
   sessionRpe: z.number().int().min(1).max(10).nullable(),

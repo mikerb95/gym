@@ -69,4 +69,27 @@ describe("seguridad por fila", () => {
     expect(await as(STRANGER, "SELECT * FROM appointments")).toHaveLength(0);
     expect(await as(STRANGER, "SELECT * FROM appointment_attendees")).toHaveLength(0);
   });
+
+  it("el atleta arma su propio programa y un tercero no puede tocarlo", async () => {
+    const program = "00000000-0000-0000-0000-0000000000b1";
+    const session = "00000000-0000-0000-0000-0000000000b2";
+    const exercise = "00000000-0000-0000-0000-0000000000b3";
+    await db.exec(`INSERT INTO exercises (id, slug, name, movement_pattern, primary_muscles)
+      VALUES ('${exercise}', 'prueba', 'Prueba', 'squat', '{quadriceps}')`);
+    await as(ATHLETE, `INSERT INTO programs (id, name, athlete_id, author_id, origin, weeks, status)
+      VALUES ('${program}', 'Bloque', '${ATHLETE}', '${ATHLETE}', 'template', 4, 'active')`);
+    await as(ATHLETE, `INSERT INTO planned_sessions (id, program_id, week, day_index, name)
+      VALUES ('${session}', '${program}', 1, 0, 'Día')`);
+    await as(ATHLETE, `INSERT INTO planned_exercises (session_id, exercise_id, position, sets)
+      VALUES ('${session}', '${exercise}', 0, '[]')`);
+    expect(await as(ATHLETE, "SELECT * FROM planned_exercises")).toHaveLength(1);
+
+    await expect(as(STRANGER, `INSERT INTO planned_sessions (program_id, week, day_index, name)
+      VALUES ('${program}', 1, 1, 'Intruso')`)).rejects.toThrow();
+    expect(await as(STRANGER, "SELECT * FROM programs")).toHaveLength(0);
+
+    await as(ATHLETE, `UPDATE programs SET status = 'archived' WHERE id = '${program}'`);
+    const [row] = await as<{ status: string }>(ATHLETE, `SELECT status FROM programs WHERE id = '${program}'`);
+    expect(row?.status).toBe("archived");
+  });
 });
