@@ -1,0 +1,333 @@
+[
+  {
+    "title": "Gym Leg Press Machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Gym_Leg_Press_Machine.jpg/960px-Gym_Leg_Press_Machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Gym_Leg_Press_Machine.jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "Infimetrische Beinpresse (i-B6).jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Infimetrische_Beinpresse_%28i-B6%29.jpg/960px-Infimetrische_Beinpresse_%28i-B6%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Lokverführer",
+    "page": "https://commons.wikimedia.org/wiki/File:Infimetrische_Beinpresse_(i-B6).jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "Leg Press.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Leg_Press.jpg/960px-Leg_Press.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "SAgbley",
+    "page": "https://commons.wikimedia.org/wiki/File:Leg_Press.jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "Leg Press Machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Leg_Press_Machine.jpg/960px-Leg_Press_Machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Paulmcdonald",
+    "page": "https://commons.wikimedia.org/wiki/File:Leg_Press_Machine.jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "Leg press (cropped, flipped).jpg",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/5/57/Leg_press_%28cropped%2C_flipped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "The original uploader was SlimVirgin at English Wikipedia.",
+    "page": "https://commons.wikimedia.org/wiki/File:Leg_press_(cropped,_flipped).jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "Leg press machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Leg_press_machine.jpg/960px-Leg_press_machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Teemeah",
+    "page": "https://commons.wikimedia.org/wiki/File:Leg_press_machine.jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "Leg press machine loaded with plates.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Leg_press_machine_loaded_with_plates.jpg/960px-Leg_press_machine_loaded_with_plates.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Teemeah",
+    "page": "https://commons.wikimedia.org/wiki/File:Leg_press_machine_loaded_with_plates.jpg",
+    "expected": [
+      "prensa-piernas"
+    ]
+  },
+  {
+    "title": "HackSquatMachineExercise.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/d/dd/HackSquatMachineExercise.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:HackSquatMachineExercise.JPG",
+    "expected": [
+      "sentadilla-hack"
+    ]
+  },
+  {
+    "title": "LegExtensionMachineExercise.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/3/36/LegExtensionMachineExercise.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:LegExtensionMachineExercise.JPG",
+    "expected": [
+      "extension-cuadriceps"
+    ]
+  },
+  {
+    "title": "LyingLegCurlMachineExercise.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/c6/LyingLegCurlMachineExercise.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:LyingLegCurlMachineExercise.JPG",
+    "expected": [
+      "curl-femoral-acostado"
+    ]
+  },
+  {
+    "title": "Hip abductor machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Hip_abductor_machine.jpg/960px-Hip_abductor_machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Teemeah",
+    "page": "https://commons.wikimedia.org/wiki/File:Hip_abductor_machine.jpg",
+    "expected": [
+      "abduccion-maquina",
+      "aduccion-maquina"
+    ]
+  },
+  {
+    "title": "Back Pull down.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Back_Pull_down.jpg/960px-Back_Pull_down.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Back_Pull_down.jpg",
+    "expected": [
+      "jalon-pecho"
+    ]
+  },
+  {
+    "title": "Diverging Lat Pulldown Machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2a/Diverging_Lat_Pulldown_Machine.jpg/960px-Diverging_Lat_Pulldown_Machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC0",
+    "author": "Teddyhtsai",
+    "page": "https://commons.wikimedia.org/wiki/File:Diverging_Lat_Pulldown_Machine.jpg",
+    "expected": [
+      "jalon-pecho"
+    ]
+  },
+  {
+    "title": "Lat pulldown machine 20180112.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Lat_pulldown_machine_20180112.jpg/960px-Lat_pulldown_machine_20180112.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Santeri Viinamäki",
+    "page": "https://commons.wikimedia.org/wiki/File:Lat_pulldown_machine_20180112.jpg",
+    "expected": [
+      "jalon-pecho"
+    ]
+  },
+  {
+    "title": "Bench press Machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Bench_press_Machine.jpg/960px-Bench_press_Machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Bench_press_Machine.jpg",
+    "expected": [
+      "press-banca-smith",
+      "sentadilla-smith"
+    ]
+  },
+  {
+    "title": "Chest Incline.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Chest_Incline.jpg/960px-Chest_Incline.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Chest_Incline.jpg",
+    "expected": [
+      "press-inclinado-maquina",
+      "press-pecho-maquina"
+    ]
+  },
+  {
+    "title": "Kathedrale vom Kalvarienberg, 2022 Pécs.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Kathedrale_vom_Kalvarienberg%2C_2022_P%C3%A9cs.jpg/960px-Kathedrale_vom_Kalvarienberg%2C_2022_P%C3%A9cs.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 3.0",
+    "author": "Globetrotter19",
+    "page": "https://commons.wikimedia.org/wiki/File:Kathedrale_vom_Kalvarienberg,_2022_P%C3%A9cs.jpg",
+    "expected": []
+  },
+  {
+    "title": "Pec deck Fly.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Pec_deck_Fly.jpg/960px-Pec_deck_Fly.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Pec_deck_Fly.jpg",
+    "expected": [
+      "pec-deck"
+    ]
+  },
+  {
+    "title": "ShoulderPressMachineExercise.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/1/1f/ShoulderPressMachineExercise.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:ShoulderPressMachineExercise.JPG",
+    "expected": [
+      "press-hombro-maquina"
+    ]
+  },
+  {
+    "title": "Shoulder Press.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Shoulder_Press.jpg/960px-Shoulder_Press.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Shoulder_Press.jpg",
+    "expected": [
+      "press-hombro-maquina"
+    ]
+  },
+  {
+    "title": "SmithMachineBenchPress.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/4/43/SmithMachineBenchPress.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:SmithMachineBenchPress.JPG",
+    "expected": [
+      "press-banca-smith",
+      "sentadilla-smith"
+    ]
+  },
+  {
+    "title": "SeatedCalfRaiseMachineExercise.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/e/e7/SeatedCalfRaiseMachineExercise.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "George Stepanek",
+    "page": "https://commons.wikimedia.org/wiki/File:SeatedCalfRaiseMachineExercise.JPG",
+    "expected": [
+      "pantorrilla-sentado"
+    ]
+  },
+  {
+    "title": "PreacherBenchBicepsCurl.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/cc/PreacherBenchBicepsCurl.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:PreacherBenchBicepsCurl.JPG",
+    "expected": [
+      "curl-predicador"
+    ]
+  },
+  {
+    "title": "Bicep curl machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Bicep_curl_machine.jpg/960px-Bicep_curl_machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Aliva Sahoo",
+    "page": "https://commons.wikimedia.org/wiki/File:Bicep_curl_machine.jpg",
+    "expected": [
+      "curl-predicador",
+      "curl-biceps-maquina"
+    ]
+  },
+  {
+    "title": "RomanChairBackExtension.JPG",
+    "thumb": "https://upload.wikimedia.org/wikipedia/commons/0/08/RomanChairBackExtension.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. GeorgeStepanek assumed (based on copyright",
+    "page": "https://commons.wikimedia.org/wiki/File:RomanChairBackExtension.JPG",
+    "expected": [
+      "hiperextension-banco"
+    ]
+  },
+  {
+    "title": "Self service coffee machine and drink vending machine installed in the lobby of a business building.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Self_service_coffee_machine_and_drink_vending_machine_installed_in_the_lobby_of_a_business_building.jpg/960px-Self_service_coffee_machine_and_drink_vending_machine_installed_in_the_lobby_of_a_business_building.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "ThomasYehYeh",
+    "page": "https://commons.wikimedia.org/wiki/File:Self_service_coffee_machine_and_drink_vending_machine_installed_in_the_lobby_of_a_business_building.jpg",
+    "expected": []
+  },
+  {
+    "title": "Treadmill-gym.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Treadmill-gym.jpg/960px-Treadmill-gym.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "GhoziSeptiandri",
+    "page": "https://commons.wikimedia.org/wiki/File:Treadmill-gym.jpg",
+    "expected": [
+      "caminadora"
+    ]
+  },
+  {
+    "title": "Treadmills in Cobra Gym 24 Hour Fitness.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Treadmills_in_Cobra_Gym_24_Hour_Fitness.jpg/960px-Treadmills_in_Cobra_Gym_24_Hour_Fitness.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 3.0",
+    "author": "Cobragym1",
+    "page": "https://commons.wikimedia.org/wiki/File:Treadmills_in_Cobra_Gym_24_Hour_Fitness.jpg",
+    "expected": [
+      "caminadora"
+    ]
+  },
+  {
+    "title": "Elliptical machine.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Elliptical_machine.jpg/960px-Elliptical_machine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 3.0",
+    "author": "No machine-readable author provided. Cpetro45 assumed (based on copyright claims",
+    "page": "https://commons.wikimedia.org/wiki/File:Elliptical_machine.jpg",
+    "expected": [
+      "eliptica"
+    ]
+  },
+  {
+    "title": "Gimnasio del hotel Hilton Garden Aeropuerto de Bogotá 20220702 170050.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Gimnasio_del_hotel_Hilton_Garden_Aeropuerto_de_Bogot%C3%A1_20220702_170050.jpg/960px-Gimnasio_del_hotel_Hilton_Garden_Aeropuerto_de_Bogot%C3%A1_20220702_170050.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "Josefito123",
+    "page": "https://commons.wikimedia.org/wiki/File:Gimnasio_del_hotel_Hilton_Garden_Aeropuerto_de_Bogot%C3%A1_20220702_170050.jpg",
+    "expected": [
+      "eliptica"
+    ]
+  },
+  {
+    "title": "Stationary bikes at a gym.jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Stationary_bikes_at_a_gym.jpg/960px-Stationary_bikes_at_a_gym.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 4.0",
+    "author": "KeepActive Australia from Melbourne, VIC, Australia",
+    "page": "https://commons.wikimedia.org/wiki/File:Stationary_bikes_at_a_gym.jpg",
+    "expected": [
+      "bicicleta-estatica"
+    ]
+  },
+  {
+    "title": "风阻划船器（Concept2 E型划船器）.JPG",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/%E9%A3%8E%E9%98%BB%E5%88%92%E8%88%B9%E5%99%A8%EF%BC%88Concept2_E%E5%9E%8B%E5%88%92%E8%88%B9%E5%99%A8%EF%BC%89.JPG/960px-%E9%A3%8E%E9%98%BB%E5%88%92%E8%88%B9%E5%99%A8%EF%BC%88Concept2_E%E5%9E%8B%E5%88%92%E8%88%B9%E5%99%A8%EF%BC%89.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "CC BY-SA 3.0",
+    "author": "Nick3488",
+    "page": "https://commons.wikimedia.org/wiki/File:%E9%A3%8E%E9%98%BB%E5%88%92%E8%88%B9%E5%99%A8%EF%BC%88Concept2_E%E5%9E%8B%E5%88%92%E8%88%B9%E5%99%A8%EF%BC%89.JPG",
+    "expected": [
+      "remo-ergometro"
+    ]
+  },
+  {
+    "title": "Yokota celebrates fitness annex and TLF re-opening (9727036).jpg",
+    "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Yokota_celebrates_fitness_annex_and_TLF_re-opening_%289727036%29.jpg/960px-Yokota_celebrates_fitness_annex_and_TLF_re-opening_%289727036%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "license": "Public domain",
+    "author": "U.S. Air Force photo by Airman 1st Class Kayla Karelas",
+    "page": "https://commons.wikimedia.org/wiki/File:Yokota_celebrates_fitness_annex_and_TLF_re-opening_(9727036).jpg",
+    "expected": [
+      "escaladora"
+    ]
+  }
+]

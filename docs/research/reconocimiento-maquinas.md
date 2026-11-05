@@ -780,3 +780,31 @@ Por encima de ~12.000 usuarios activos el presupuesto se ajusta: bajar la propor
 - Hammer Strength plate loaded: https://lifefitness.com/es-es/productos/fuerza/plate-loaded/hammer-strength
 - Fabricantes colombianos: https://xtensor.com.co/, https://www.abcfitnesscolombia.com/, https://machinesgym.wixsite.com/futuremachinescali, https://oaklandsportmachine.com/, https://homeathletic.com.co/
 - OEM asiáticos: https://www.yanrefitness.com/plate-loaded-gym-equipment, https://thacoindustries.com/en/custom-plate-loaded-machines-manufacturers/
+
+---
+
+## 11. Actualización del 5 de noviembre de 2026: primera versión sin dataset propio
+
+La primera versión no usa el modelo en el dispositivo de la sección 5. Haiku 5.5 recibe la foto del nombre (opcional) y la de la máquina, y elige entre los ejercicios del catálogo. No requiere entrenamiento ni capturar fotos en gimnasios; a cambio necesita conexión y paga cada consulta. La sección 4.1 advierte que un modelo de visión-lenguaje rinde peor como clasificador fino, así que la persona siempre confirma y el acierto se mide antes de confiar en él.
+
+**Qué se le da en lugar de entrenamiento:**
+- Nombres de placa como alias de cada ejercicio en `packages/db/src/seed/exercises.ts`, que también sirven para la búsqueda manual.
+- 19 ejercicios de máquina nuevos que faltaban en el catálogo (de 73 a 92).
+- Las reglas para distinguir los grupos de confusión de la sección 2.18, en `apps/web/src/lib/machine-identify.ts`.
+
+**Nombres verificados en fuentes públicas:**
+- Matrix Versa: Converging Chest Press, Pectoral Fly/Rear Delt, Converging Shoulder Press, Diverging Lat Pulldown, Diverging Seated Row, Biceps Curl, Tricep Press, Leg Press/Calf Press, Leg Extension, Seated Leg Curl, Hip Adductor/Abductor, Glute ([Performance Health](https://www.performancehealth.com/matrix-versa-strength-series)).
+- Technogym Selection 900: Pectoral, Upper Back, Vertical Traction, Leg Press, Rotary Torso, Pulldown, Pulley, Shoulder Press, Arm Curl, Adductor ([ArchiExpo](https://www.archiexpo.com/product-manufacturer/technogym-curl-weight-training-machine-42195-14772.html), [Refurbed](https://www.refurbed.es/sp/technogym-selection-900-pectoral)).
+- Life Fitness Insignia: Assist Dip Chin, Pectoral Fly/Rear Deltoid, Dual Axis Chest Press, Dual Axis Pulldown, Lateral Raise, Abdominal, Back Extension, Torso Rotation, Arc Leg Press, Calf Extension, Hip Abduction/Adduction, Glute ([Life Fitness](https://www.lifefitness.com/en-us/catalog/strength-training/selectorized/insignia-series)).
+- Hammer Strength MTS: Iso-Lateral Chest Press, Incline Press, Decline Press, Shoulder Press, Row, High Row, Front Pulldown, Biceps Curl, Triceps Extension, Leg Extension, Kneeling Leg Curl ([Life Fitness](https://www.lifefitness.com/en-us/catalog/strength-training/selectorized)).
+- Panatta Fit Evo: Leg Curling, Hip Thrust, Peck Back, Multi Hip, Lower Back ([Keystone Fitness](https://keystonefitness.ca/product-category/strength-equipment/panatta-strength-equipment/fit-evo/page/7/?c=arms)).
+
+Esta búsqueda no encontró catálogos de fabricantes colombianos con nombres de máquinas, ni confirmó a XTENSOR o ABC Fitness como fabricantes. Algunos alias en español y genéricos en inglés salen de conocimiento general, no de estas fuentes.
+
+**Evaluación sin ir a un gym:** `apps/web/scripts/machine-eval-set.json` tiene 33 fotos de Wikimedia Commons con licencia, autor y enlace por foto, y `pnpm --filter @gym/web eval:machines` las corre. El repositorio solo guarda enlaces. Limitaciones:
+- Muestra pequeña: 18 ejercicios esperados, muy desigual (7 de prensa), y casi sin máquinas colombianas. Sirve para detectar problemas gruesos, no para prometer un porcentaje.
+- Faltan clases como curl femoral sentado, remo y crunch, porque Commons casi no tiene fotos con licencia abierta. La sección 3.3 ya anticipaba volumen insignificante.
+- Las fotos no incluyen placas fotografiadas de cerca, así que no miden la lectura del nombre.
+- Tres etiquetas (`SeatedCalfRaiseMachineExercise`, `PreacherBenchBicepsCurl` y `RomanChairBackExtension`) salen del nombre del archivo, sin revisión visual.
+
+**Fuentes descartadas:** Roboflow Universe tiene datasets marcados CC BY 4.0 (por ejemplo [Bangkit Academy](https://universe.roboflow.com/bangkit-academy-ognnb/gym-equipment-object-detection)), pero su página no se dejó leer de forma automática y sus imágenes suelen venir de terceros. Hay que revisar licencia y procedencia antes de usarlos. Los catálogos de fabricantes siguen fuera por la sección 3.4: de ellos solo se usan nombres de productos, no imágenes.

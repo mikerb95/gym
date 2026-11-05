@@ -52,7 +52,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "sentadilla-hack",
     name: "Sentadilla hack",
-    aliases: ["hack squat", "máquina hack"],
+    aliases: ["hack squat", "máquina hack", "hack machine", "hack press"],
     movementPattern: "squat",
     primaryMuscles: ["quadriceps"],
     secondaryMuscles: ["glutes"],
@@ -61,7 +61,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "sentadilla-smith",
     name: "Sentadilla en máquina Smith",
-    aliases: ["smith", "multipower"],
+    aliases: ["smith", "multipower", "smith machine", "máquina smith"],
     movementPattern: "squat",
     primaryMuscles: ["quadriceps", "glutes"],
     equipment: ["smith_machine"],
@@ -69,7 +69,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "prensa-piernas",
     name: "Prensa de piernas",
-    aliases: ["prensa 45", "leg press", "prensa inclinada"],
+    aliases: ["prensa 45", "leg press", "prensa inclinada", "seated leg press", "arc leg press", "leg press/calf press", "prensa horizontal", "prensa vertical"],
     movementPattern: "squat",
     primaryMuscles: ["quadriceps", "glutes"],
     secondaryMuscles: ["adductors"],
@@ -79,7 +79,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "extension-cuadriceps",
     name: "Extensión de cuádriceps",
-    aliases: ["extensiones", "leg extension", "silla de cuádriceps"],
+    aliases: ["extensiones", "leg extension", "silla de cuádriceps", "leg extensions", "extensión de pierna"],
     movementPattern: "isolation",
     primaryMuscles: ["quadriceps"],
     equipment: ["machine"],
@@ -152,7 +152,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "hip-thrust-maquina",
     name: "Hip thrust en máquina",
-    aliases: ["máquina de glúteo"],
+    aliases: ["máquina de glúteo", "glute drive", "booty builder", "hip thrust machine"],
     movementPattern: "hinge",
     primaryMuscles: ["glutes"],
     equipment: ["machine"],
@@ -160,7 +160,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "curl-femoral-acostado",
     name: "Curl femoral acostado",
-    aliases: ["femoral acostado", "leg curl"],
+    aliases: ["femoral acostado", "leg curl", "lying leg curl", "prone leg curl", "leg curling"],
     movementPattern: "isolation",
     primaryMuscles: ["hamstrings"],
     equipment: ["machine"],
@@ -184,7 +184,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "abduccion-maquina",
     name: "Abducción de cadera en máquina",
-    aliases: ["abductores", "máquina abductora"],
+    aliases: ["abductores", "máquina abductora", "hip abductor", "hip abduction", "abductor", "outer thigh"],
     movementPattern: "isolation",
     primaryMuscles: ["glutes"],
     equipment: ["machine"],
@@ -192,7 +192,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "aduccion-maquina",
     name: "Aducción de cadera en máquina",
-    aliases: ["aductores", "máquina aductora"],
+    aliases: ["aductores", "máquina aductora", "hip adductor", "hip adduction", "aductor", "adductor", "inner thigh"],
     movementPattern: "isolation",
     primaryMuscles: ["adductors"],
     equipment: ["machine"],
@@ -200,7 +200,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "pantorrilla-de-pie",
     name: "Elevación de talones de pie",
-    aliases: ["pantorrilla", "gemelos", "calf raise"],
+    aliases: ["pantorrilla", "gemelos", "calf raise", "standing calf", "standing calf raise"],
     movementPattern: "isolation",
     primaryMuscles: ["calves"],
     equipment: ["machine", "smith_machine"],
@@ -208,7 +208,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "pantorrilla-sentado",
     name: "Elevación de talones sentado",
-    aliases: ["sóleo", "pantorrilla sentado"],
+    aliases: ["sóleo", "pantorrilla sentado", "seated calf", "seated calf raise", "calf extension"],
     movementPattern: "isolation",
     primaryMuscles: ["calves"],
     equipment: ["machine"],
@@ -253,7 +253,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "press-pecho-maquina",
     name: "Press de pecho en máquina",
-    aliases: ["chest press", "máquina de pecho"],
+    aliases: ["chest press", "máquina de pecho", "converging chest press", "dual axis chest press", "seated chest press", "iso-lateral chest press"],
     movementPattern: "push_h",
     primaryMuscles: ["chest"],
     secondaryMuscles: ["triceps"],
@@ -270,7 +270,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "pec-deck",
     name: "Aperturas en máquina",
-    aliases: ["pec deck", "peck deck", "mariposa"],
+    aliases: ["pec deck", "peck deck", "mariposa", "pec fly", "pectoral fly", "pectoral", "butterfly", "peck back", "chest fly machine"],
     movementPattern: "isolation",
     primaryMuscles: ["chest"],
     equipment: ["machine"],
@@ -278,7 +278,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "cruce-poleas",
     name: "Cruce de poleas",
-    aliases: ["crossover", "cruces"],
+    aliases: ["crossover", "cruces", "cable crossover", "cable cross", "dual adjustable pulley", "cable motion"],
     movementPattern: "isolation",
     primaryMuscles: ["chest"],
     equipment: ["cable"],
@@ -326,7 +326,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "press-hombro-maquina",
     name: "Press de hombro en máquina",
-    aliases: ["shoulder press"],
+    aliases: ["shoulder press", "converging shoulder press", "overhead press machine", "iso-lateral shoulder press"],
     movementPattern: "push_v",
     primaryMuscles: ["front_delts"],
     secondaryMuscles: ["triceps"],
@@ -377,7 +377,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "dominadas-asistidas",
     name: "Dominadas asistidas en máquina",
-    aliases: ["asistida", "gravitron"],
+    aliases: ["asistida", "gravitron", "assisted chin-up", "assist dip chin", "assisted pull-up"],
     movementPattern: "pull_v",
     primaryMuscles: ["lats"],
     secondaryMuscles: ["biceps"],
@@ -386,7 +386,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "jalon-pecho",
     name: "Jalón al pecho",
-    aliases: ["polea al pecho", "lat pulldown", "jalón"],
+    aliases: ["polea al pecho", "lat pulldown", "jalón", "lat pull down", "pulldown", "front pulldown", "diverging lat pulldown", "vertical traction", "high lat", "dorsalera"],
     movementPattern: "pull_v",
     primaryMuscles: ["lats"],
     secondaryMuscles: ["biceps", "upper_back"],
@@ -433,7 +433,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "remo-polea-baja",
     name: "Remo sentado en polea",
-    aliases: ["remo bajo", "seated row", "remo en polea"],
+    aliases: ["remo bajo", "seated row", "remo en polea", "seated cable row", "low pulley row", "pulley", "low row"],
     movementPattern: "pull_h",
     primaryMuscles: ["upper_back", "lats"],
     secondaryMuscles: ["biceps"],
@@ -442,7 +442,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "remo-maquina",
     name: "Remo en máquina",
-    aliases: ["remo articulado", "remo hammer"],
+    aliases: ["remo articulado", "remo hammer", "seated row", "diverging seated row", "iso-lateral row", "upper back"],
     movementPattern: "pull_h",
     primaryMuscles: ["upper_back", "lats"],
     equipment: ["machine"],
@@ -450,7 +450,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "remo-t",
     name: "Remo en T",
-    aliases: ["t bar row", "remo en punta"],
+    aliases: ["t bar row", "remo en punta", "t-bar row"],
     movementPattern: "pull_h",
     primaryMuscles: ["upper_back", "lats"],
     equipment: ["barbell", "machine"],
@@ -458,7 +458,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "encogimientos",
     name: "Encogimientos de hombros",
-    aliases: ["shrugs", "trapecio"],
+    aliases: ["shrugs", "trapecio", "shrug", "shrug machine"],
     movementPattern: "isolation",
     primaryMuscles: ["traps"],
     equipment: ["dumbbell", "barbell"],
@@ -491,7 +491,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "curl-predicador",
     name: "Curl en banco Scott",
-    aliases: ["predicador", "scott", "curl predicador"],
+    aliases: ["predicador", "scott", "curl predicador", "preacher curl", "scott curl"],
     movementPattern: "isolation",
     primaryMuscles: ["biceps"],
     equipment: ["barbell", "machine"],
@@ -566,7 +566,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "elevacion-piernas-colgado",
     name: "Elevación de piernas colgado",
-    aliases: ["elevación de rodillas", "hanging leg raise"],
+    aliases: ["elevación de rodillas", "hanging leg raise", "captain's chair", "vertical knee raise", "power tower"],
     movementPattern: "core",
     primaryMuscles: ["abs"],
     equipment: ["pull_up_bar"],
@@ -611,7 +611,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "caminadora",
     name: "Caminadora",
-    aliases: ["trotadora", "banda", "cinta", "treadmill"],
+    aliases: ["trotadora", "banda", "cinta", "treadmill", "cinta de correr"],
     movementPattern: "cardio",
     primaryMuscles: ["cardio"],
     equipment: ["treadmill"],
@@ -622,7 +622,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "bicicleta-estatica",
     name: "Bicicleta estática",
-    aliases: ["bici", "spinning", "cicla estática"],
+    aliases: ["bici", "spinning", "cicla estática", "exercise bike", "upright bike", "recumbent bike", "assault bike", "air bike"],
     movementPattern: "cardio",
     primaryMuscles: ["cardio"],
     equipment: ["stationary_bike"],
@@ -633,7 +633,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "eliptica",
     name: "Elíptica",
-    aliases: ["elíptico"],
+    aliases: ["elíptico", "elliptical", "crosstrainer", "cross trainer", "arc trainer"],
     movementPattern: "cardio",
     primaryMuscles: ["cardio"],
     equipment: ["elliptical"],
@@ -644,7 +644,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "remo-ergometro",
     name: "Remo ergómetro",
-    aliases: ["máquina de remo", "rower", "concept"],
+    aliases: ["máquina de remo", "rower", "concept", "rowing machine", "concept2", "rowerg", "skillrow"],
     movementPattern: "cardio",
     primaryMuscles: ["cardio"],
     equipment: ["rower"],
@@ -655,7 +655,7 @@ export const EXERCISES: ExerciseSeed[] = [
   {
     slug: "escaladora",
     name: "Escaladora",
-    aliases: ["stairmaster", "escalera"],
+    aliases: ["stairmaster", "escalera", "stair climber", "stepmill", "stepper"],
     movementPattern: "cardio",
     primaryMuscles: ["cardio"],
     equipment: ["stair_climber"],
@@ -672,4 +672,25 @@ export const EXERCISES: ExerciseSeed[] = [
     tracksWeight: false,
     tracksDuration: true,
   },
+
+  // Máquinas de la taxonomía de reconocimiento (docs/research/reconocimiento-maquinas.md).
+  { slug: "sentadilla-pendulo", name: "Sentadilla péndulo", aliases: ["pendulum squat", "péndulo"], movementPattern: "squat", primaryMuscles: ["quadriceps", "glutes"], equipment: ["machine"] },
+  { slug: "sentadilla-palanca", name: "Sentadilla en máquina de palanca", aliases: ["v-squat", "v squat", "power squat", "squat press", "leverage squat"], movementPattern: "squat", primaryMuscles: ["quadriceps", "glutes"], equipment: ["machine"] },
+  { slug: "sentadilla-cinturon", name: "Sentadilla con cinturón", aliases: ["belt squat", "hip belt squat"], movementPattern: "squat", primaryMuscles: ["quadriceps", "glutes"], equipment: ["machine"] },
+  { slug: "curl-femoral-de-pie", name: "Curl femoral de pie o arrodillado", aliases: ["standing leg curl", "kneeling leg curl", "iso-lateral kneeling leg curl"], movementPattern: "isolation", primaryMuscles: ["hamstrings"], equipment: ["machine"] },
+  { slug: "patada-gluteo-maquina", name: "Patada de glúteo en máquina", aliases: ["glute machine", "glute kickback", "rear kick", "multi hip", "glute"], movementPattern: "isolation", primaryMuscles: ["glutes"], equipment: ["machine"] },
+  { slug: "press-inclinado-maquina", name: "Press inclinado en máquina", aliases: ["incline press", "incline chest press", "iso-lateral incline press", "converging incline press"], movementPattern: "push_h", primaryMuscles: ["chest", "front_delts"], secondaryMuscles: ["triceps"], equipment: ["machine"] },
+  { slug: "press-declinado-maquina", name: "Press declinado en máquina", aliases: ["decline press", "decline chest press", "iso-lateral decline press"], movementPattern: "push_h", primaryMuscles: ["chest"], secondaryMuscles: ["triceps"], equipment: ["machine"] },
+  { slug: "press-banca-smith", name: "Press de banca en máquina Smith", aliases: ["smith bench press", "press en multipower"], movementPattern: "push_h", primaryMuscles: ["chest"], secondaryMuscles: ["triceps", "front_delts"], equipment: ["smith_machine", "bench"] },
+  { slug: "fondos-maquina", name: "Fondos en máquina", aliases: ["seated dip", "dip machine", "triceps dip"], movementPattern: "push_v", primaryMuscles: ["triceps", "chest"], equipment: ["machine"] },
+  { slug: "pajaros-maquina", name: "Aperturas invertidas en máquina", aliases: ["rear delt", "reverse fly", "rear deltoid", "pectoral fly/rear delt", "pájaros en máquina"], movementPattern: "isolation", primaryMuscles: ["rear_delts"], secondaryMuscles: ["upper_back"], equipment: ["machine"] },
+  { slug: "elevacion-lateral-maquina", name: "Elevación lateral en máquina", aliases: ["lateral raise", "deltoid raise", "shoulder lateral raise"], movementPattern: "isolation", primaryMuscles: ["side_delts"], equipment: ["machine"] },
+  { slug: "remo-alto-maquina", name: "Remo alto en máquina", aliases: ["high row", "iso-lateral high row"], movementPattern: "pull_v", primaryMuscles: ["lats", "upper_back"], secondaryMuscles: ["biceps"], equipment: ["machine"] },
+  { slug: "curl-biceps-maquina", name: "Curl de bíceps en máquina", aliases: ["biceps curl", "arm curl", "bicep curl machine"], movementPattern: "isolation", primaryMuscles: ["biceps"], equipment: ["machine"] },
+  { slug: "extension-triceps-maquina", name: "Extensión de tríceps en máquina", aliases: ["triceps extension", "triceps press", "tricep press", "arm extension"], movementPattern: "isolation", primaryMuscles: ["triceps"], equipment: ["machine"] },
+  { slug: "crunch-maquina", name: "Crunch en máquina", aliases: ["abdominal", "abdominal crunch", "ab crunch", "abdominal machine"], movementPattern: "core", primaryMuscles: ["abs"], equipment: ["machine"] },
+  { slug: "giro-torso-maquina", name: "Giro de torso en máquina", aliases: ["rotary torso", "torso rotation", "oblique machine"], movementPattern: "core", primaryMuscles: ["obliques"], equipment: ["machine"] },
+  { slug: "extension-espalda-maquina", name: "Extensión de espalda en máquina", aliases: ["back extension", "lower back", "lumbar"], movementPattern: "hinge", primaryMuscles: ["lower_back"], secondaryMuscles: ["glutes"], equipment: ["machine"] },
+  { slug: "hiperextension-banco", name: "Hiperextensión en banco romano", aliases: ["hyperextension", "roman chair", "45 degree back extension", "ghd"], movementPattern: "hinge", primaryMuscles: ["lower_back", "glutes"], secondaryMuscles: ["hamstrings"], equipment: ["bench"] },
+  { slug: "esqui-ergometro", name: "Esquí ergómetro", aliases: ["skierg", "ski erg", "skillski"], movementPattern: "cardio", primaryMuscles: ["cardio"], equipment: ["ski_erg"], tracksWeight: false, tracksDuration: true, tracksDistance: true },
 ];
