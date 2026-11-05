@@ -22,7 +22,7 @@ import {
   type PlannedWorkout,
   type WorkoutPayload,
 } from "@/lib/workout";
-import { parseDecimal, subscribe, workoutStore } from "@/lib/workout-store";
+import { parseDecimal, subscribe, workoutStore, type RestState } from "@/lib/workout-store";
 
 type Props = { catalog: CatalogExercise[]; last: LastPerformance; planned?: PlannedWorkout | null };
 
@@ -39,8 +39,8 @@ function workoutFromPlan(planned: PlannedWorkout, byId: Map<string, CatalogExerc
       const set = newSet(exercise, last[exerciseId], sets);
       sets.push({
         ...set,
-        reps: plan.repsMin ?? set.reps,
-        rir: plan.rir ?? set.rir,
+        // Lo último que hizo de verdad; la meta del programa se muestra aparte.
+        reps: set.reps ?? plan.repsMin,
         durationSeconds: plan.durationS ?? set.durationSeconds,
       });
     }
@@ -59,7 +59,9 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
   const [scanning, setScanning] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
-  const [rest, setRest] = useState<{ endsAt: number; total: number } | null>(null);
+  const rest = useSyncExternalStore(subscribe, workoutStore.getRest, () => null);
+  const storageFailed = useSyncExternalStore(subscribe, workoutStore.getWriteFailed, () => false);
+  useWakeLock(!!workout);
   const byId = useMemo(() => new Map(catalog.map((e) => [e.id, e])), [catalog]);
 
   // Sin sesión abierta en el teléfono: se crea una al entrar.
@@ -112,7 +114,7 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
 
   function close() {
     setClosed(true);
-    setRest(null);
+    workoutStore.setRest(null);
     workoutStore.setActive(null);
   }
 
@@ -156,6 +158,12 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
         </button>
       </header>
 
+      {storageFailed ? (
+        <p role="alert" className="mt-4 rounded-xl bg-danger-tint px-4 py-3 text-[15px] leading-relaxed text-danger">
+          Tu teléfono no dejó guardar los últimos cambios, quizás por falta de espacio. No cierres la app hasta terminar la sesión.
+        </p>
+      ) : null}
+
       {planned && workout.plannedSessionId !== planned.id ? (
         <p className="mt-4 rounded-xl bg-amber-tint px-4 py-3 text-[15px] leading-relaxed">
           Ya tenías una sesión abierta. Termínala o descártala para empezar {planned.name}.
@@ -181,8 +189,8 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
               }
               onRemove={() => update((w) => ({ ...w, exercises: w.exercises.filter((e) => e.key !== logged.key) }))}
               onSetDone={() => {
-                const total = logged.plan?.restSeconds ?? workoutStore.getRestSeconds();
-                setRest({ endsAt: Date.now() + total * 1000, total });
+                const total = logged.plan?.restSeconds ?? workoutStore.getRestFor(logged.exerciseId);
+                workoutStore.setRest({ endsAt: Date.now() + total * 1000, total, exerciseId: logged.exerciseId });
               }}
             />
           );
@@ -213,7 +221,7 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
         </button>
       </div>
 
-      {rest ? <RestTimer rest={rest} onChange={setRest} /> : null}
+      {rest ? <RestTimer rest={rest} onChange={workoutStore.setRest} /> : null}
 
       {scanning ? (
         <MachineScanner
@@ -265,15 +273,47 @@ function freeSuggestion(exercise: CatalogExercise, last: LastPerformance[string]
   return proposal ? { proposal } : undefined;
 }
 
-/** Serie nueva: copia la anterior de hoy o, si no hay, la de la última vez. */
+/** Mantiene la pantalla encendida durante la sesión. Sin soporte, simplemente no hace nada. */
+function useWakeLock(active: boolean) {
+  useEffect(() => {
+    if (!active || !("wakeLock" in navigator)) return;
+    let lock: WakeLockSentinel | null = null;
+    let cancelled = false;
+    async function acquire() {
+      try {
+        const next = await navigator.wakeLock.request("screen");
+        if (cancelled) void next.release();
+        else lock = next;
+      } catch {
+        // Batería baja o pestaña oculta: se reintenta al volver.
+      }
+    }
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void acquire();
+    };
+    void acquire();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      void lock?.release();
+    };
+  }, [active]);
+}
+
+/**
+ * Serie nueva: el peso sigue al de hoy; las repeticiones, a las de esa misma serie
+ * la última vez. El esfuerzo no se copia: un RIR que nadie declaró falsearía los récords.
+ */
 function newSet(exercise: CatalogExercise, last: LastPerformance[string] | undefined, current: LoggedSet[]): LoggedSet {
   const previous = current.at(-1);
-  const fromLast = last?.sets[current.length] ?? last?.sets.at(-1);
+  const workingCount = current.filter((s) => s.type !== "warmup").length;
+  const fromLast = last?.sets[workingCount] ?? last?.sets.at(-1);
   return {
     id: crypto.randomUUID(),
     weightKg: exercise.tracksWeight ? (previous?.weightKg ?? fromLast?.weightKg ?? null) : null,
-    reps: previous?.reps ?? fromLast?.reps ?? null,
-    rir: previous?.rir ?? 2,
+    reps: fromLast?.reps ?? previous?.reps ?? null,
+    rir: null,
     durationSeconds: exercise.tracksDuration ? (previous?.durationSeconds ?? fromLast?.durationSeconds ?? null) : null,
     distanceMeters: previous?.distanceMeters ?? null,
     done: false,
@@ -333,6 +373,12 @@ function ExerciseCard({
   onSetDone: () => void;
 }) {
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [removed, setRemoved] = useState<{ set: LoggedSet; index: number } | null>(null);
+  useEffect(() => {
+    if (!removed) return;
+    const id = setTimeout(() => setRemoved(null), 5000);
+    return () => clearTimeout(id);
+  }, [removed]);
   const setSet = (id: string, patch: Partial<LoggedSet>) =>
     onChange({ ...logged, sets: logged.sets.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
   const summary = last ? lastSummary(last) : null;
@@ -409,7 +455,7 @@ function ExerciseCard({
       />
 
       <div className="mt-4 grid gap-2">
-        <div className="grid grid-cols-[2rem_1fr_1fr_4.5rem_3rem] items-center gap-2 px-1 text-xs font-medium text-muted">
+        <div className={`${SET_GRID} px-1 text-xs font-medium text-muted`}>
           <span>Serie</span>
           <span>{showWeight ? "Kg" : durationOnly ? "Min" : ""}</span>
           <span>{showReps ? "Reps" : ""}</span>
@@ -419,13 +465,21 @@ function ExerciseCard({
         {logged.sets.map((set, i) => (
           <SetRow
             key={set.id}
-            index={i}
+            label={setLabel(logged.sets, i)}
             set={set}
+            previous={set.type === "warmup" ? undefined : previousLabel(last, logged.sets, i)}
             showWeight={showWeight}
             showReps={showReps}
             showDuration={durationOnly}
             onChange={(patch) => setSet(set.id, patch)}
-            onRemove={logged.sets.length > 1 ? () => onChange({ ...logged, sets: logged.sets.filter((s) => s.id !== set.id) }) : undefined}
+            onRemove={
+              logged.sets.length > 1
+                ? () => {
+                    setRemoved({ set, index: i });
+                    onChange({ ...logged, sets: logged.sets.filter((s) => s.id !== set.id) });
+                  }
+                : undefined
+            }
             onDone={() => {
               const done = !set.done;
               setSet(set.id, { done, completedAt: done ? new Date().toISOString() : null });
@@ -437,6 +491,24 @@ function ExerciseCard({
           />
         ))}
       </div>
+
+      {removed ? (
+        <div role="status" className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-ink px-4 py-1.5 text-[15px] text-chalk">
+          Serie borrada
+          <button
+            type="button"
+            onClick={() => {
+              const sets = [...logged.sets];
+              sets.splice(removed.index, 0, removed.set);
+              onChange({ ...logged, sets });
+              setRemoved(null);
+            }}
+            className="min-h-11 rounded-lg px-3 font-semibold underline"
+          >
+            Deshacer
+          </button>
+        </div>
+      ) : null}
 
       <button
         type="button"
@@ -535,9 +607,27 @@ function NumberCell({
   );
 }
 
+const SET_GRID = "grid grid-cols-[2rem_1fr_1fr_4.5rem_3.5rem] items-center gap-2";
+
+/** Los calentamientos no gastan número: la serie 1 es la primera efectiva. */
+function setLabel(sets: LoggedSet[], index: number) {
+  if (sets[index].type === "warmup") return "C";
+  return String(sets.slice(0, index + 1).filter((s) => s.type !== "warmup").length);
+}
+
+function previousLabel(last: LastPerformance[string] | undefined, sets: LoggedSet[], index: number) {
+  const position = sets.slice(0, index).filter((s) => s.type !== "warmup").length;
+  const before = last?.sets[position];
+  if (!before) return undefined;
+  if (before.durationSeconds && !before.reps) return clock(before.durationSeconds);
+  if (!before.reps) return undefined;
+  return before.weightKg ? `${fmt(before.weightKg)} × ${before.reps}` : `${before.reps} reps`;
+}
+
 function SetRow({
-  index,
+  label,
   set,
+  previous,
   showWeight,
   showReps,
   showDuration,
@@ -545,8 +635,9 @@ function SetRow({
   onRemove,
   onDone,
 }: {
-  index: number;
+  label: string;
   set: LoggedSet;
+  previous?: string;
   showWeight: boolean;
   showReps: boolean;
   showDuration: boolean;
@@ -555,24 +646,26 @@ function SetRow({
   onDone: () => void;
 }) {
   const canComplete = showDuration ? !!set.durationSeconds : !!set.reps;
+  const [menu, setMenu] = useState(false);
+  const warmup = set.type === "warmup";
+  const name = warmup ? "calentamiento" : `serie ${label}`;
   return (
-    <div
-      className={`group grid grid-cols-[2rem_1fr_1fr_4.5rem_3rem] items-center gap-2 rounded-xl p-1 ${set.done ? "bg-ok-tint" : ""}`}
-    >
+    <div className={`rounded-xl p-1 ${set.done ? "bg-ok-tint" : ""}`}>
+      <div className={SET_GRID}>
       <button
         type="button"
-        onClick={onRemove}
-        disabled={!onRemove || set.done}
-        aria-label={onRemove ? `Borrar serie ${index + 1}` : `Serie ${index + 1}`}
-        className="figure h-12 text-center text-lg text-muted enabled:hover:text-danger"
+        onClick={() => setMenu(!menu)}
+        aria-expanded={menu}
+        aria-label={`Opciones de ${name}`}
+        className={`figure h-14 rounded-lg text-center text-lg ${warmup ? "text-amber" : "text-muted"}`}
       >
-        {index + 1}
+        {label}
       </button>
       {showWeight ? (
-        <NumberCell label={`Kilos, serie ${index + 1}`} value={set.weightKg} onChange={(weightKg) => onChange({ weightKg })} decimal disabled={set.done} />
+        <NumberCell label={`Kilos, ${name}`} value={set.weightKg} onChange={(weightKg) => onChange({ weightKg })} decimal disabled={set.done} />
       ) : showDuration ? (
         <NumberCell
-          label={`Minutos, serie ${index + 1}`}
+          label={`Minutos, ${name}`}
           value={set.durationSeconds === null ? null : Math.round((set.durationSeconds / 60) * 10) / 10}
           onChange={(min) => onChange({ durationSeconds: min === null ? null : Math.round(min * 60) })}
           decimal
@@ -582,18 +675,19 @@ function SetRow({
         <span />
       )}
       {showReps ? (
-        <NumberCell label={`Repeticiones, serie ${index + 1}`} value={set.reps} onChange={(reps) => onChange({ reps })} disabled={set.done} />
+        <NumberCell label={`Repeticiones, ${name}`} value={set.reps} onChange={(reps) => onChange({ reps })} disabled={set.done} />
       ) : (
         <span />
       )}
       {showReps ? (
         <select
-          aria-label={`Repeticiones en reserva, serie ${index + 1}`}
+          aria-label={`Repeticiones en reserva, ${name}`}
           value={set.rir ?? ""}
           disabled={set.done}
           onChange={(e) => onChange({ rir: e.target.value === "" ? null : Number(e.target.value) })}
           className={`${cell} appearance-none`}
         >
+          <option value="">-</option>
           <option value="0">0</option>
           <option value="1">1</option>
           <option value="2">2</option>
@@ -608,11 +702,33 @@ function SetRow({
         onClick={onDone}
         disabled={!canComplete && !set.done}
         aria-pressed={set.done}
-        aria-label={set.done ? `Desmarcar serie ${index + 1}` : `Marcar serie ${index + 1} como hecha`}
-        className="grid h-12 place-items-center rounded-lg bg-sunken text-muted disabled:opacity-40 aria-pressed:bg-ok aria-pressed:text-surface"
+        aria-label={set.done ? `Desmarcar ${name}` : `Marcar ${name} como hecha`}
+        className="grid h-14 place-items-center rounded-lg bg-sunken text-muted disabled:opacity-40 aria-pressed:bg-ok aria-pressed:text-surface"
       >
-        <Check aria-hidden size={22} strokeWidth={3} />
+        <Check aria-hidden size={24} strokeWidth={3} />
       </button>
+      </div>
+      {previous ? <p className="mt-0.5 pl-10 text-xs text-muted tabular-nums">Antes: {previous}</p> : null}
+      {menu ? (
+        <div className="mt-1 flex flex-wrap gap-1.5 pl-10">
+          <button
+            type="button"
+            aria-pressed={warmup}
+            onClick={() => {
+              onChange({ type: warmup ? "working" : "warmup" });
+              setMenu(false);
+            }}
+            className="min-h-11 rounded-lg bg-sunken px-3 text-sm font-semibold aria-pressed:bg-amber-tint"
+          >
+            {warmup ? "Volver a efectiva" : "Es calentamiento"}
+          </button>
+          {onRemove ? (
+            <button type="button" onClick={onRemove} className="min-h-11 rounded-lg bg-danger-tint px-3 text-sm font-semibold text-danger">
+              Borrar serie
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -621,8 +737,8 @@ function RestTimer({
   rest,
   onChange,
 }: {
-  rest: { endsAt: number; total: number };
-  onChange: (r: { endsAt: number; total: number } | null) => void;
+  rest: RestState;
+  onChange: (r: RestState | null) => void;
 }) {
   const [now, setNow] = useState(() => Date.now());
   const buzzed = useRef(false);
@@ -637,6 +753,11 @@ function RestTimer({
   useEffect(() => {
     if (remaining <= 0 && !buzzed.current) {
       buzzed.current = true;
+      // Terminó mientras la app estaba cerrada: ya no hay nada que avisar.
+      if (remaining < -4) {
+        onChange(null);
+        return;
+      }
       navigator.vibrate?.([200, 100, 200]);
       const id = setTimeout(() => onChange(null), 4000);
       return () => clearTimeout(id);
@@ -645,15 +766,14 @@ function RestTimer({
 
   const adjust = (delta: number) => {
     const total = Math.max(15, rest.total + delta);
-    workoutStore.setRestSeconds(total);
-    onChange({ endsAt: rest.endsAt + delta * 1000, total });
+    if (rest.exerciseId) workoutStore.setRestFor(rest.exerciseId, total);
+    onChange({ ...rest, endsAt: rest.endsAt + delta * 1000, total });
   };
   const progress = Math.min(1, Math.max(0, 1 - remaining / rest.total));
 
   return (
     <div
       role="timer"
-      aria-live="polite"
       className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 px-3 pb-2 md:bottom-4 md:left-60 md:px-10"
     >
       <div className="relative mx-auto flex max-w-3xl items-center gap-2 overflow-hidden rounded-2xl bg-ink p-2 pl-4 text-chalk shadow-lg">
@@ -665,7 +785,7 @@ function RestTimer({
               Descanso <span className="figure ml-1 text-[22px]">{clock(remaining)}</span>
             </>
           ) : (
-            "A la siguiente serie"
+            <span role="status">A la siguiente serie</span>
           )}
         </p>
         <button type="button" onClick={() => adjust(-15)} aria-label="Restar 15 segundos" className="relative grid size-11 place-items-center rounded-xl bg-chalk/10">
@@ -788,6 +908,8 @@ function ExerciseList({ items, onPick }: { items: CatalogExercise[]; onPick: (e:
   );
 }
 
+const SAVE_TIMEOUT_MS = 10_000;
+
 const RPE_HINTS: Record<number, string> = {
   1: "Muy fácil",
   3: "Suave",
@@ -822,7 +944,7 @@ function FinishPanel({
   const done = workout.exercises.flatMap((e, ei) =>
     e.sets.filter((s) => s.done).map((s) => ({ ...s, exerciseId: e.exerciseId, identifiedBy: e.identifiedBy, ei })),
   );
-  const volume = done.reduce((sum, s) => sum + (s.weightKg ?? 0) * (s.reps ?? 0), 0);
+  const volume = done.filter((s) => s.type !== "warmup").reduce((sum, s) => sum + (s.weightKg ?? 0) * (s.reps ?? 0), 0);
   const [openedAt] = useState(() => Date.now());
   const minutes = Math.round((openedAt - new Date(workout.startedAt).getTime()) / 60000);
   const exerciseCount = new Set(done.map((s) => s.exerciseId)).size;
@@ -841,6 +963,7 @@ function FinishPanel({
         id: s.id,
         exerciseId: s.exerciseId,
         identifiedBy: s.identifiedBy,
+        type: s.type ?? "working",
         position,
         weightKg: s.weightKg,
         reps: s.reps,
@@ -852,7 +975,12 @@ function FinishPanel({
     };
     startTransition(async () => {
       try {
-        const result = await saveWorkout(payload);
+        // Con señal débil no se deja esperando: a los 10 s pasa a la bandeja. Si el
+        // servidor también lo recibe no se duplica, porque los ids los genera el cliente.
+        const result = await Promise.race([
+          saveWorkout(payload),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), SAVE_TIMEOUT_MS)),
+        ]);
         if (!result.ok) return setError(result.error);
         onDone({ kind: "saved", records: result.records });
       } catch {

@@ -55,6 +55,7 @@ export async function saveWorkout(input: unknown): Promise<SaveWorkoutResult> {
           workoutSessionId: w.id,
           exerciseId: s.exerciseId,
           identifiedBy: s.identifiedBy ?? "manual",
+          type: s.type ?? "working",
           position: s.position,
           weightKg: s.weightKg,
           reps: s.reps,
@@ -69,7 +70,7 @@ export async function saveWorkout(input: unknown): Promise<SaveWorkoutResult> {
     // Récords de máximo estimado: la mejor serie confiable de cada ejercicio.
     const best = new Map<string, { kg: number; setId: string; at: string }>();
     for (const s of w.sets) {
-      if (!s.weightKg || !s.reps) continue;
+      if (s.type === "warmup" || !s.weightKg || !s.reps) continue;
       const e1rm = estimateOneRepMax({ weightKg: s.weightKg, reps: s.reps, rir: s.rir ?? 0 });
       if (!e1rm.reliable) continue;
       const current = best.get(s.exerciseId);

@@ -72,8 +72,8 @@ export function getHistory(limit = 12): Promise<HistoryItem[]> {
         startedAt: workoutSessions.startedAt,
         endedAt: workoutSessions.endedAt,
         sessionRpe: workoutSessions.sessionRpe,
-        sets: sql<number>`(select count(*)::int from performed_sets p where p.workout_session_id = ${workoutSessions.id})`,
-        volumeKg: sql<number>`(select coalesce(sum(p.weight_kg * p.reps), 0)::float from performed_sets p where p.workout_session_id = ${workoutSessions.id})`,
+        sets: sql<number>`(select count(*)::int from performed_sets p where p.workout_session_id = ${workoutSessions.id} and p.type <> 'warmup')`,
+        volumeKg: sql<number>`(select coalesce(sum(p.weight_kg * p.reps), 0)::float from performed_sets p where p.workout_session_id = ${workoutSessions.id} and p.type <> 'warmup')`,
         exercises: sql<string[]>`(select coalesce(array_agg(distinct e.name), '{}') from performed_sets p join exercises e on e.id = p.exercise_id where p.workout_session_id = ${workoutSessions.id})`,
       })
       .from(workoutSessions)

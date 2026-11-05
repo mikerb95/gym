@@ -12,19 +12,30 @@ const ACTIVE = "sr:workout:active";
 const OUTBOX = "sr:workout:outbox";
 const REST = "sr:workout:rest";
 const MACHINE_NOTES = "sr:machine:notes";
+const REVIEW = "sr:workout:review";
+const REST_ACTIVE = "sr:workout:rest-active";
+const REST_BY_EXERCISE = "sr:workout:rest-by-exercise";
 
-// Memoria de respaldo por si el navegador bloquea localStorage (modo privado).
-const memory = new Map<string, string>();
+export type RestState = { endsAt: number; total: number; exerciseId?: string };
+export type ReviewItem = { payload: WorkoutPayload; error: string };
+// Siempre el mismo arreglo: useSyncExternalStore exige una lectura estable.
+export const NO_REVIEW: ReviewItem[] = [];
+
+// Memoria de respaldo por si localStorage falla: bloqueado en modo privado o sin
+// espacio. Mientras una clave esté aquí, este valor manda sobre el del disco.
+const memory = new Map<string, string | null>();
+let writeFailed = false;
 // Última lectura por clave, para devolver el mismo objeto si nada cambió
 // (useSyncExternalStore lo exige).
 const snapshots = new Map<string, { raw: string | null; value: unknown }>();
 const listeners = new Set<() => void>();
 
 function getRaw(key: string): string | null {
+  if (memory.has(key)) return memory.get(key) ?? null;
   try {
     return localStorage.getItem(key);
   } catch {
-    return memory.get(key) ?? null;
+    return null;
   }
 }
 
@@ -47,9 +58,11 @@ function write(key: string, value: unknown) {
   try {
     if (raw === null) localStorage.removeItem(key);
     else localStorage.setItem(key, raw);
+    memory.delete(key);
+    if (memory.size === 0) writeFailed = false;
   } catch {
-    if (raw === null) memory.delete(key);
-    else memory.set(key, raw);
+    memory.set(key, raw);
+    writeFailed = true;
   }
   for (const listener of listeners) listener();
 }
@@ -78,9 +91,33 @@ export const workoutStore = {
   },
   /** Borra lo guardado en este dispositivo. Al salir o eliminar la cuenta, para que no pase a otra persona. */
   clear() {
-    write(ACTIVE, null);
-    write(OUTBOX, null);
-    write(MACHINE_NOTES, null);
+    for (const key of [ACTIVE, OUTBOX, MACHINE_NOTES, REVIEW, REST_ACTIVE, REST_BY_EXERCISE]) write(key, null);
+  },
+  /** El teléfono no dejó guardar: lo último solo vive en memoria hasta que haya espacio. */
+  getWriteFailed: () => writeFailed,
+  /** Sesiones que el servidor rechazó. No se borran: la persona decide qué hacer con ellas. */
+  getReview: () => read<ReviewItem[]>(REVIEW) ?? NO_REVIEW,
+  moveToReview(payload: WorkoutPayload, error: string) {
+    const items = workoutStore.getReview().filter((i) => i.payload.id !== payload.id);
+    write(REVIEW, [...items, { payload, error }]);
+    workoutStore.dequeue(payload.id);
+  },
+  retryReview(id: string) {
+    const item = workoutStore.getReview().find((i) => i.payload.id === id);
+    if (item) workoutStore.enqueue(item.payload);
+    workoutStore.discardReview(id);
+  },
+  discardReview(id: string) {
+    const items = workoutStore.getReview().filter((i) => i.payload.id !== id);
+    write(REVIEW, items.length ? items : null);
+  },
+  /** El descanso en curso se guarda con hora absoluta: sobrevive a recargar o cerrar la app. */
+  getRest: () => read<RestState>(REST_ACTIVE),
+  setRest: (rest: RestState | null) => write(REST_ACTIVE, rest),
+  /** Lo último que ajustó en cada ejercicio; si nunca lo ajustó, el descanso general. */
+  getRestFor: (exerciseId: string) => read<Record<string, number>>(REST_BY_EXERCISE)?.[exerciseId] ?? workoutStore.getRestSeconds(),
+  setRestFor(exerciseId: string, seconds: number) {
+    write(REST_BY_EXERCISE, { ...read<Record<string, number>>(REST_BY_EXERCISE), [exerciseId]: seconds });
   },
   /** Mi ajuste por ejercicio: altura del asiento, número de placa. Vive solo en este teléfono. */
   getMachineNotes: () => read<Record<string, string>>(MACHINE_NOTES),
@@ -91,7 +128,6 @@ export const workoutStore = {
     write(MACHINE_NOTES, notes);
   },
   getRestSeconds: () => read<number>(REST) ?? 90,
-  setRestSeconds: (s: number) => write(REST, s),
 };
 
 /** "82,5" o "82.5" a número; vacío o inválido a null. */

@@ -17,8 +17,12 @@ export type CatalogExercise = {
   tracksDistance: boolean;
 };
 
+export type SetType = "warmup" | "working";
+
 export type LoggedSet = {
   id: string;
+  /** Sin valor es una serie efectiva. Los calentamientos no cuentan para volumen ni récords. */
+  type?: SetType;
   weightKg: number | null;
   reps: number | null;
   rir: number | null;
@@ -86,6 +90,8 @@ export const workoutPayloadSchema = z.object({
         exerciseId: z.uuid(),
         // Opcional: las sesiones ya en la bandeja de salida no lo traen.
         identifiedBy: z.enum(["manual", "camera"]).optional(),
+        // Opcional por la misma razón.
+        type: z.enum(["warmup", "working"]).optional(),
         position: z.number().int().min(0),
         weightKg: z.number().min(0).max(1000).nullable(),
         reps: z.number().int().min(0).max(500).nullable(),
