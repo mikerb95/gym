@@ -63,7 +63,7 @@ function SessionRow({ item }: { item: HistoryItem }) {
         <p className="font-semibold first-letter:uppercase">{day}</p>
         <p className="text-sm text-muted tabular-nums">
           {minutes !== null ? `${minutes} min, ` : ""}
-          {item.sets} series
+          {item.sets === 1 ? "1 serie" : `${item.sets} series`}
           {item.volumeKg > 0 ? `, ${fmt(Math.round(item.volumeKg))} kg` : ""}
         </p>
       </div>

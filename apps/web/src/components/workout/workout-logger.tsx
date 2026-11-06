@@ -8,7 +8,7 @@ import { saveWorkout, type SaveWorkoutResult } from "@/app/(app)/entrenar/action
 import { buttonPrimary, buttonQuiet } from "@/components/ui";
 import { ExerciseHelp } from "@/components/workout/exercise-help";
 import { MachineScanner } from "@/components/workout/machine-scanner";
-import { loadIncrementKg, proposeLoad } from "@gym/core";
+import { loadIncrementKg, proposeLoad, type LoadProposal } from "@gym/core";
 import { fmt } from "@/lib/format";
 import {
   MUSCLE_LABELS,
@@ -58,6 +58,7 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
   const [pickerQuery, setPickerQuery] = useState("");
   const [scanning, setScanning] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [confirmExit, setConfirmExit] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const rest = useSyncExternalStore(subscribe, workoutStore.getRest, () => null);
   const storageFailed = useSyncExternalStore(subscribe, workoutStore.getWriteFailed, () => false);
@@ -148,14 +149,32 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
           <p className="text-sm text-muted">En curso</p>
           <Elapsed since={workout.startedAt} />
         </div>
-        <button
-          type="button"
-          onClick={() => setFinishing(true)}
-          disabled={doneSets.length === 0}
-          className={`${buttonPrimary} min-h-11 px-4`}
-        >
-          Terminar
-        </button>
+        {doneSets.length > 0 ? (
+          <button type="button" onClick={() => setFinishing(true)} className={`${buttonPrimary} min-h-11 px-4`}>
+            Terminar
+          </button>
+        ) : confirmExit ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                close();
+                router.push("/entrenar");
+              }}
+              className="min-h-11 rounded-lg bg-danger px-4 font-semibold text-surface"
+            >
+              Sí, descartar
+            </button>
+            <button type="button" onClick={() => setConfirmExit(false)} aria-label="Seguir en la sesión" className="grid size-11 place-items-center">
+              <X aria-hidden size={20} />
+            </button>
+          </div>
+        ) : (
+          // Sin series hechas no hay nada que terminar, pero sí debe poder salirse de la sesión.
+          <button type="button" onClick={() => setConfirmExit(true)} className={`${buttonQuiet} min-h-11 px-4`}>
+            Descartar
+          </button>
+        )}
       </header>
 
       {storageFailed ? (
@@ -260,6 +279,15 @@ export function WorkoutLogger({ catalog, last, planned }: Props) {
 
 // Rango general para proponer carga cuando no hay un programa que fije otro.
 const FREE_REPS = { min: 8, max: 12, rir: 2 };
+
+/** Al subir la carga las repeticiones vuelven al piso del rango, como dice la propuesta. */
+function applyProposal(sets: LoggedSet[], proposal: LoadProposal, repsMin: number | null) {
+  return sets.map((s) => {
+    if (s.done) return s;
+    const reps = proposal.action === "increase" && repsMin !== null ? repsMin : s.reps;
+    return { ...s, weightKg: proposal.weightKg, reps };
+  });
+}
 
 function freeSuggestion(exercise: CatalogExercise, last: LastPerformance[string] | undefined) {
   if (!exercise.tracksWeight || !last) return undefined;
@@ -420,11 +448,10 @@ function ExerciseCard({
           plan={logged.plan}
           onDecide={(decision) => {
             const plan = { ...logged.plan!, proposalDecision: decision };
-            const weightKg = logged.plan!.proposal!.weightKg;
             onChange({
               ...logged,
               plan,
-              sets: decision === "accepted" ? logged.sets.map((s) => (s.done ? s : { ...s, weightKg })) : logged.sets,
+              sets: decision === "accepted" ? applyProposal(logged.sets, logged.plan!.proposal!, logged.plan!.repsMin) : logged.sets,
             });
           }}
         />
@@ -434,11 +461,10 @@ function ExerciseCard({
         <ProposalCard
           plan={logged.suggestion}
           onDecide={(decision) => {
-            const weightKg = logged.suggestion!.proposal!.weightKg;
             onChange({
               ...logged,
               suggestion: { ...logged.suggestion!, proposalDecision: decision },
-              sets: decision === "accepted" ? logged.sets.map((s) => (s.done ? s : { ...s, weightKg })) : logged.sets,
+              sets: decision === "accepted" ? applyProposal(logged.sets, logged.suggestion!.proposal!, FREE_REPS.min) : logged.sets,
             });
           }}
         />

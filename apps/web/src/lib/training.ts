@@ -72,9 +72,11 @@ export function getHistory(limit = 12): Promise<HistoryItem[]> {
         startedAt: workoutSessions.startedAt,
         endedAt: workoutSessions.endedAt,
         sessionRpe: workoutSessions.sessionRpe,
-        sets: sql<number>`(select count(*)::int from performed_sets p where p.workout_session_id = ${workoutSessions.id} and p.type <> 'warmup')`,
-        volumeKg: sql<number>`(select coalesce(sum(p.weight_kg * p.reps), 0)::float from performed_sets p where p.workout_session_id = ${workoutSessions.id} and p.type <> 'warmup')`,
-        exercises: sql<string[]>`(select coalesce(array_agg(distinct e.name), '{}') from performed_sets p join exercises e on e.id = p.exercise_id where p.workout_session_id = ${workoutSessions.id})`,
+        // Nombre de tabla escrito a mano: sin join, drizzle renderiza ${workoutSessions.id} como "id" a secas,
+        // que dentro de estas subconsultas es ambiguo.
+        sets: sql<number>`(select count(*)::int from performed_sets p where p.workout_session_id = workout_sessions.id and p.type <> 'warmup')`,
+        volumeKg: sql<number>`(select coalesce(sum(p.weight_kg * p.reps), 0)::float from performed_sets p where p.workout_session_id = workout_sessions.id and p.type <> 'warmup')`,
+        exercises: sql<string[]>`(select coalesce(array_agg(distinct e.name), '{}') from performed_sets p join exercises e on e.id = p.exercise_id where p.workout_session_id = workout_sessions.id)`,
       })
       .from(workoutSessions)
       // RLS también deja ver a un entrenador las sesiones de sus atletas: aquí solo van las propias.

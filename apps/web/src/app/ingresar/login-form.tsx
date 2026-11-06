@@ -83,6 +83,7 @@ export function LoginForm() {
         }}
         className="grid gap-4"
       >
+        {notice ? <p className="text-[15px] leading-relaxed">{notice}</p> : null}
         <label className="grid gap-2">
           <span className="text-sm font-medium text-muted">Correo electrónico</span>
           <input

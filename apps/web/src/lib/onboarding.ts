@@ -111,12 +111,20 @@ export const onboardingSchema = z
     trainingDaysPerWeek: z.number().int().min(1).max(7),
     sessionMinutes: z.number().int().min(20).max(180),
     parqSkipped: z.boolean(),
-    parq: z.record(z.enum(PARQ_QUESTIONS.map((q) => q.id) as [ParqId, ...ParqId[]]), z.boolean()),
+    // Parcial: quien elige no responder no manda nada. Las faltantes se revisan abajo.
+    parq: z.partialRecord(z.enum(PARQ_QUESTIONS.map((q) => q.id) as [ParqId, ...ParqId[]]), z.boolean()),
     emergencyContactName: z.string().trim().max(80),
-    emergencyContactPhone: z.string().trim().max(20),
+    // Opcional, pero si viene debe poder marcarse: 7 a 15 dígitos, el largo de un número internacional.
+    emergencyContactPhone: z
+      .string()
+      .trim()
+      .max(20)
+      .refine((v) => v === "" || /^\+?[\d\s()-]+$/.test(v) && /^\d{7,15}$/.test(v.replace(/\D/g, "")), "Escribe un celular válido"),
     guardianName: z.string().trim().max(80),
     consents: z.object({
-      service: z.literal(true, "Debes aceptar los términos para crear tu cuenta"),
+      // Se exige abajo: un z.literal(true) que falla aborta el superRefine, y la edad y el
+      // representante dejarían de validarse en cada paso hasta llegar a las autorizaciones.
+      service: z.boolean(),
       // Ley 1581, art. 6: nadie está obligado a autorizar el tratamiento de datos sensibles.
       sensitive_health: z.boolean(),
       machine_photos_training: z.boolean(),
@@ -125,6 +133,9 @@ export const onboardingSchema = z
     }),
   })
   .superRefine((v, ctx) => {
+    if (!v.consents.service) {
+      ctx.addIssue({ code: "custom", path: ["consents", "service"], message: "Debes aceptar los términos para crear tu cuenta" });
+    }
     const age = ageOn(v.birthDate);
     if (age < MIN_AGE || age > 100) {
       ctx.addIssue({ code: "custom", path: ["birthDate"], message: `La app es para personas desde ${MIN_AGE} años` });

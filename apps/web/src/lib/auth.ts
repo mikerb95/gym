@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { eq } from "drizzle-orm";
 import { withRls, type JwtClaims, type Tx } from "@gym/db";
 import { profiles } from "@gym/db/schema";
@@ -16,6 +17,8 @@ export type Viewer = {
 
 /** Usuario de la petición, con el JWT verificado. Se resuelve una vez por petición. */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
+  // getClaims mira el reloj para vencer el JWT: esto es de cada petición, no del prerender.
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims?.sub) return null;
